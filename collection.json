@@ -1,5 +1,32 @@
 [
   {
+    "id": "mnpzvdr2g6t43",
+    "category": "movies",
+    "title": "哈利波特",
+    "author": "JK罗琳",
+    "year": "2001",
+    "episodes": "7",
+    "desc": "《哈利·波特》系列电影是由华纳兄弟娱乐公司根据J·K·罗琳同名小说改编的八部奇幻冒险电影，由克里斯·哥伦布、大卫·叶茨等执导，丹尼尔·雷德克里夫、鲁伯特·格林特、艾玛·沃特森等主演。影片以英国为主要制片地区，全球累计票房达78亿美元，2024年12月起系列后四部密钥延期至2025年2月，全系列重映已于2024年10月开启。导演克里斯·哥伦布表示因争议不再回归该系列。该系列讲述孤儿哈利·波特在霍格沃",
+    "notes": "",
+    "cover": "https://ts1.tc.mm.bing.net/th/id/OIP-C.mQeSE6JejyYLcsODJqxE8AHaKY",
+    "links": [
+      {
+        "name": "百度百科",
+        "url": "https://baike.baidu.com/item/%E5%93%88%E5%88%A9%C2%B7%E6%B3%A2%E7%89%B9/799441#6-1"
+      }
+    ],
+    "tags": [
+      "🇬🇧 英国",
+      "✍️ 文学",
+      "🧚 奇幻"
+    ],
+    "status": "unwatched",
+    "rating": 5,
+    "createdAt": "2026-04-08T11:58:28.958Z",
+    "updatedAt": "2026-04-08T11:58:28.958Z",
+    "local": false
+  },
+  {
     "id": "mnpzr51fzm3of",
     "category": "anime",
     "title": "数码宝贝",
