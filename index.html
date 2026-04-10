@@ -189,7 +189,7 @@ img{max-width:100%}
 .grid-card.selected-card{border-color:var(--ac);box-shadow:0 0 0 2px var(--ac)}
 .cc{width:100%;aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
 .cc img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
-.cc .no-cover-icon{font-size:38px;opacity:.5}
+.cc .no-cover-icon{font-size:38px;opacity:.45}
 .grid-card:hover .cc img{transform:scale(1.05)}
 .ci{padding:9px 11px}
 .ct{font-size:12.5px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:2px}
@@ -204,8 +204,8 @@ img{max-width:100%}
 }
 .list-card:hover{box-shadow:var(--sh);transform:translateX(3px)}
 .list-card.selected-card{border-color:var(--ac);box-shadow:0 0 0 2px var(--ac)}
-.lcc{width:62px;aspect-ratio:2/3;border-radius:var(--rs);background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.5}
-.lcc img{width:100%;height:100%;object-fit:cover;opacity:1}
+.lcc{width:62px;aspect-ratio:2/3;border-radius:var(--rs);background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.lcc img{width:100%;height:100%;object-fit:cover;}
 .li{flex:1;min-width:0}
 .lt{font-size:14px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .lm{font-size:11.5px;color:var(--tx3);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:5px}
@@ -220,8 +220,8 @@ img{max-width:100%}
 }
 .compact-card:hover{box-shadow:var(--sh);border-color:var(--ac)}
 .compact-card.selected-card{border-color:var(--ac);box-shadow:0 0 0 2px var(--ac)}
-.ccc{width:44px;aspect-ratio:2/3;border-radius:6px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.5}
-.ccc img{width:100%;height:100%;object-fit:cover;opacity:1}
+.ccc{width:44px;aspect-ratio:2/3;border-radius:6px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.ccc img{width:100%;height:100%;object-fit:cover;}
 .cki{flex:1;min-width:0}
 .ckt{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ckm{font-size:11px;color:var(--tx3);margin-top:1px}
@@ -231,10 +231,12 @@ img{max-width:100%}
   display:inline-flex;align-items:center;padding:1px 7px;border-radius:10px;
   font-size:10px;font-weight:600;white-space:nowrap;
 }
-.sbadge.watched{background:#22c55e18;color:#22c55e;border:1px solid #22c55e30}
-.sbadge.watching{background:#f59e0b18;color:#f59e0b;border:1px solid #f59e0b30}
-.sbadge.unwatched{background:var(--bg3);color:var(--tx3);border:1px solid var(--bd)}
-.sbadge.local{background:#3b82f618;color:#3b82f6;border:1px solid #3b82f630}
+.sbadge.watched{background:#22c55e;color:#fff;border:1px solid #16a34a}
+.sbadge.watching{background:#f59e0b;color:#fff;border:1px solid #d97706}
+.sbadge.unwatched{background:rgba(100,100,100,.75);color:#fff;border:1px solid rgba(80,80,80,.5);backdrop-filter:blur(2px)}
+.sbadge.local{background:#3b82f6;color:#fff;border:1px solid #2563eb}
+/* abs badge on grid card covers gets a shadow for readability */
+.abs-badge .sbadge{box-shadow:0 1px 4px rgba(0,0,0,.35)}
 
 /* card checkbox */
 .cbox{
@@ -249,6 +251,8 @@ img{max-width:100%}
 
 /* ===== TAG CHIP ===== */
 .tchip{font-size:11px;padding:2px 7px;border-radius:9px;background:var(--bg3);color:var(--tx2);border:none;transition:all var(--tr)}
+/* no-cover placeholder icons have reduced opacity, NOT the container */
+.lcc .no-cover-icon,.ccc .no-cover-icon{opacity:.45}
 .tchip:hover{background:var(--acl);color:var(--ac);cursor:pointer}
 
 /* ===== SELECT BAR ===== */
@@ -342,10 +346,14 @@ textarea.fi{resize:vertical;min-height:72px}
 .sopt.unwatched.on{background:var(--tx3);color:#fff;border-color:var(--tx3)}
 
 /* rating */
-.stars{display:flex;gap:3px}
-.star{font-size:18px;cursor:pointer;transition:transform var(--tr);color:var(--bd)}
-.star:hover,.star.on{color:var(--amber)}
-.star:hover{transform:scale(1.25)}
+.stars{display:flex;gap:2px;align-items:center}
+/* Half-star rating system */
+.star-wrap{position:relative;width:20px;height:20px;cursor:pointer;font-size:19px;line-height:20px}
+.star-wrap .star-bg{color:var(--bd)}
+.star-wrap .star-fill{position:absolute;top:0;left:0;overflow:hidden;color:var(--amber);white-space:nowrap}
+.star-wrap:hover .star-bg{color:#fcd97a}
+.star-label{font-size:12px;color:var(--tx3);font-family:var(--fm);margin-left:6px;min-width:24px}
+.mini-stars{display:inline-flex;align-items:center;gap:1px;font-size:12px}
 
 /* country dropdown */
 .country-sel{width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--rs);background:var(--bg);color:var(--tx);font-size:13.5px;font-family:var(--fn);outline:none;cursor:pointer;transition:border var(--tr)}
@@ -471,7 +479,7 @@ textarea.fi{resize:vertical;min-height:72px}
       <span class="logo-title">藏·索引</span>
       <span class="logo-version">v4</span>
     </div>
-    <div class="logo-sub">MY COLLECTION UNIVERSE</div>
+    <div class="logo-sub" id="site-sub">MY COLLECTION UNIVERSE</div>
   </div>
   <div class="gh-status" id="gh-status" onclick="navigateTo('settings')">
     <div class="gh-dot" id="gh-dot"></div>
@@ -497,9 +505,6 @@ textarea.fi{resize:vertical;min-height:72px}
     <div class="nav-sec" style="margin-top:6px">功能</div>
     <button class="nav-item" data-page="stats" onclick="navigateTo('stats')">
       <span class="ni">📊</span>统计
-    </button>
-    <button class="nav-item" data-page="files" onclick="navigateTo('files')">
-      <span class="ni">📁</span>文件分享
     </button>
     <button class="nav-item" data-page="about" onclick="navigateTo('about')">
       <span class="ni">💡</span>关于本站
@@ -559,23 +564,85 @@ textarea.fi{resize:vertical;min-height:72px}
 
 <script>
 // ============================================================
-// DATA & STATE
+// ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
+// ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
+// ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+// ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+// ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+//  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
+//
+// 藏·索引 — 个人收藏管理平台 v4.1
+// 开源项目，欢迎自定义修改
+// 外部配置文件: config.js (与本文件同目录)
+// 所有可自定义的内容集中在下方 CONFIG 块中
 // ============================================================
-const SK = 'coll_v4';
-const CATS = {
-  books:{label:'图书',icon:'📚',type:'book'},
-  anime:{label:'番剧',icon:'🎌',type:'media'},
-  movies:{label:'电影',icon:'🎬',type:'media'},
-  series:{label:'剧集',icon:'📺',type:'media'},
-  other:{label:'其他',icon:'🗂️',type:'media'}
+
+// ============================================================
+// ★ CONFIG — 所有可自定义项目集中在此处 ★
+// ★ 也可以将此块内容单独存为 config.js 文件  ★
+// ============================================================
+
+// 【1】网站基本信息
+const SITE_CONFIG = {
+  title: '藏·索引',           // 网站标题（显示在侧边栏logo）
+  subtitle: 'MY COLLECTION UNIVERSE',  // 副标题
+  version: 'v4.1',
+  storageKey: 'coll_v4',      // localStorage 键名（换个名称可清空数据重来）
 };
+
+// 【2】收藏分类配置
+// 可增减分类，修改 label/icon；type:'book' 显示书籍专属字段，type:'media' 显示集数字段
+const CATS = {
+  books:  {label:'图书', icon:'📚', type:'book'},
+  anime:  {label:'番剧', icon:'🎌', type:'media'},
+  movies: {label:'电影', icon:'🎬', type:'media'},
+  series: {label:'剧集', icon:'📺', type:'media'},
+  other:  {label:'其他', icon:'🗂️', type:'media'},
+  // 示例：添加漫画分类（取消注释即可）
+  // manga: {label:'漫画', icon:'📕', type:'book'},
+};
+
+// 【3】状态选项配置
+// id 是内部键名，label 是显示文字，cls 对应 CSS 类名（watched/watching/unwatched）
 const STATUS_OPTS = [
-  {id:'watched',label:'✅ 已看',cls:'watched'},
-  {id:'watching',label:'👁️ 在看',cls:'watching'},
-  {id:'unwatched',label:'⏳ 未看',cls:'unwatched'},
+  {id:'watched',   label:'✅ 已看', cls:'watched'},
+  {id:'watching',  label:'👁️ 在看', cls:'watching'},
+  {id:'unwatched', label:'⏳ 未看', cls:'unwatched'},
 ];
-const COUNTRIES = ['🇨🇳 中国','🇺🇸 美国','🇯🇵 日本','🇩🇪 德国','🇫🇷 法国','🇬🇧 英国','🇰🇷 韩国','🇮🇱 以色列','🇦🇹 奥地利','🇪🇸 西班牙','🇮🇳 印度','🇮🇹 意大利','🇷🇺 俄罗斯','🇨🇦 加拿大','🇦🇺 澳大利亚','🇧🇷 巴西','🇲🇽 墨西哥','🇦🇷 阿根廷','🇸🇪 瑞典','🇳🇴 挪威','🇩🇰 丹麦','🇳🇱 荷兰','🇵🇱 波兰','🇨🇿 捷克','🇵🇹 葡萄牙','🇬🇷 希腊','🇹🇷 土耳其','🇪🇬 埃及','🇿🇦 南非','🇹🇭 泰国','🇻🇳 越南','🇮🇩 印度尼西亚','🇲🇾 马来西亚','🇵🇭 菲律宾','🇸🇬 新加坡','🇺🇦 乌克兰','🇮🇷 伊朗','🇸🇦 沙特','🇦🇪 阿联酋','🇳🇿 新西兰'];
-const TYPE_TAGS = ['⭐ 精选','🧠 人生探讨','📖 专业书籍','✍️ 文学','🔬 科普','🔍 悬疑','🌆 社会','🌀 玄幻','🧚 奇幻','💪 励志','😌 休闲','📚 小说','🤪 怪诞','🎨 艺术','🏙️ 都市','📱 轻小说','🌌 异世界','⚡ 爽文','👨 男频','👩 女频','💕 后宫','💰 经济','⚔️ 军事','📝 自传','🔮 玄学','⏰ 穿越','🧠 心理','🗺️ 架空','👻 灵异','📐 教科书','🏫 校园','🚀 科幻','🤖 AI','🌊 海洋','🏔️ 冒险','🕊️ 和平','❤️ 言情','😂 喜剧','😢 悲剧','🎭 戏剧','📰 传记','🌿 自然','🎮 游戏改编','🎵 音乐','🏆 体育'];
+
+// 【4】国别标签（含国旗 emoji，下拉选择）
+// 格式: 'emoji 国名'，可自由增减
+const COUNTRIES = [
+  '🇨🇳 中国','🇺🇸 美国','🇯🇵 日本','🇩🇪 德国','🇫🇷 法国',
+  '🇬🇧 英国','🇰🇷 韩国','🇮🇱 以色列','🇦🇹 奥地利','🇪🇸 西班牙',
+  '🇮🇳 印度','🇮🇹 意大利','🇷🇺 俄罗斯','🇨🇦 加拿大','🇦🇺 澳大利亚',
+  '🇧🇷 巴西','🇲🇽 墨西哥','🇦🇷 阿根廷','🇸🇪 瑞典','🇳🇴 挪威',
+  '🇩🇰 丹麦','🇳🇱 荷兰','🇵🇱 波兰','🇨🇿 捷克','🇵🇹 葡萄牙',
+  '🇬🇷 希腊','🇹🇷 土耳其','🇪🇬 埃及','🇿🇦 南非','🇹🇭 泰国',
+  '🇻🇳 越南','🇮🇩 印度尼西亚','🇲🇾 马来西亚','🇵🇭 菲律宾','🇸🇬 新加坡',
+  '🇺🇦 乌克兰','🇮🇷 伊朗','🇸🇦 沙特','🇦🇪 阿联酋','🇳🇿 新西兰',
+];
+
+// 【5】类型标签（可自由增减，支持 emoji 前缀）
+// 这些标签会出现在添加/编辑表单的「类型标签」区域
+const TYPE_TAGS = [
+  '⭐ 精选','🧠 人生探讨','📖 专业书籍','✍️ 文学','🔬 科普',
+  '🔍 悬疑','🌆 社会','🌀 玄幻','🧚 奇幻','💪 励志',
+  '😌 休闲','📚 小说','🤪 怪诞','🎨 艺术','🏙️ 都市',
+  '📱 轻小说','🌌 异世界','⚡ 爽文','👨 男频','👩 女频',
+  '💕 后宫','💰 经济','⚔️ 军事','📝 自传','🔮 玄学',
+  '⏰ 穿越','🧠 心理','🗺️ 架空','👻 灵异','📐 教科书',
+  '🏫 校园','🚀 科幻','🤖 AI','🌊 海洋','🏔️ 冒险',
+  '🕊️ 和平','❤️ 言情','😂 喜剧','😢 悲剧','🎭 戏剧',
+  '📰 传记','🌿 自然','🎮 游戏改编','🎵 音乐','🏆 体育',
+  // 在此添加自定义类型标签，例如:
+  // '🌙 睡前读物','🔥 必读推荐',
+];
+
+// ============================================================
+// DATA & STATE（内部状态，一般无需修改）
+// ============================================================
+const SK = SITE_CONFIG.storageKey;
 
 let store = {
   items: [],         // main items
@@ -659,7 +726,7 @@ function navigateTo(p, spaceId=null) {
   document.getElementById('sel-btn').style.display = inColl ? 'flex' : 'none';
   if(selectMode && !inColl) exitSelectMode();
   // topbar title
-  const titles = {books:'📚 图书',anime:'🎌 番剧',movies:'🎬 电影',series:'📺 剧集',other:'🗂️ 其他',stats:'📊 统计',files:'📁 文件分享',about:'💡 关于本站',settings:'⚙️ 设置'};
+  const titles = {books:'📚 图书',anime:'🎌 番剧',movies:'🎬 电影',series:'📺 剧集',other:'🗂️ 其他',stats:'📊 统计',about:'💡 关于本站',settings:'⚙️ 设置'};
   if(spaceId) {
     const sp = store.spaces.find(s=>s.id===spaceId);
     document.getElementById('topbar-title').textContent = `📦 ${sp?.name||'空间'}`;
@@ -698,7 +765,6 @@ function renderContent() {
   if(currentSpace) { c.innerHTML = renderSpacePage(); return; }
   if(page==='stats') { c.innerHTML = renderStats(); return; }
   if(page==='settings') { c.innerHTML = renderSettings(); bindSettingsEvents(); return; }
-  if(page==='files') { c.innerHTML = renderFiles(); return; }
   if(page==='about') { c.innerHTML = renderAbout(); return; }
   // collection page
   const items = getFilteredItems();
@@ -844,7 +910,7 @@ function renderGrid(items) {
       <div class="ci">
         <div class="ct">${eh(it.title||'无标题')}</div>
         <div class="cm">${eh(it.author||it.year||'')}</div>
-        ${it.rating?`<div class="crating">${'★'.repeat(it.rating)}${'☆'.repeat(5-it.rating)}</div>`:''}
+        ${it.rating?`<div class="crating">${renderMiniStars(it.rating)}</div>`:''}
         ${localBadge(it)}
       </div>
     </div>`).join('')}
@@ -862,7 +928,7 @@ function renderList(items) {
         <div class="lm">
           ${it.author?`<span>👤 ${eh(it.author)}</span>`:''}
           ${it.year?`<span>📅 ${eh(it.year)}</span>`:''}
-          ${it.rating?`<span style="color:var(--amber)">${'★'.repeat(it.rating)}</span>`:''}
+          ${it.rating?`<span class="mini-stars">${renderMiniStars(it.rating)}</span>`:''}
         </div>
         ${it.desc?`<div class="ld">${eh(it.desc)}</div>`:''}
         <div class="ltags">${(it.tags||[]).map(t=>`<span class="tchip">${eh(t)}</span>`).join('')}</div>
@@ -917,7 +983,7 @@ function openDetail(id) {
             <div class="det-title">${eh(item.title||'无标题')}</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
               ${statusBadge(item)} ${localBadge(item)}
-              ${item.rating?`<span style="color:var(--amber);font-size:13px">${'★'.repeat(item.rating)}${'☆'.repeat(5-item.rating)}</span>`:''}
+              ${item.rating?`<span class="mini-stars" style="font-size:13px">${renderMiniStars(item.rating)}</span>`:''}
             </div>
             <div class="det-metas">
               ${item.author?`<div class="det-meta"><strong>作者</strong>${eh(item.author)}</div>`:''}
@@ -1053,7 +1119,7 @@ function openAddModal(itemId=null) {
         <div class="fg">
           <label class="fl">类型标签</label>
           <div style="display:flex;flex-wrap:wrap;gap:5px" id="type-tags">
-            ${TYPE_TAGS.map(t=>`<button class="topt${_tags.has(t)?' on':''}" onclick="toggleTypeTag(this,'${esc(t)}')">${eh(t)}</button>`).join('')}
+            ${getAllTypeTags().map(t=>`<button class="topt${_tags.has(t)?' on':''}" onclick="toggleTypeTag(this,'${esc(t)}')">${eh(t)}</button>`).join('')}
           </div>
         </div>
       </div>
@@ -1066,25 +1132,138 @@ function openAddModal(itemId=null) {
   setM(html);
 }
 
-function renderStars(r) {
-  return [1,2,3,4,5].map(n=>`<span class="star${r>=n?' on':''}" onclick="setRating(${n})">★</span>`).join('');
+// ---- MINI STAR DISPLAY (read-only, supports 0.5) ----
+function renderMiniStars(r) {
+  if(!r) return '';
+  let html='';
+  for(let n=1;n<=5;n++){
+    if(r>=n) html+='<span style="position:relative;display:inline-block;color:var(--bd)">★<span style="position:absolute;left:0;top:0;overflow:hidden;width:100%;color:var(--amber)">★</span></span>';
+    else if(r>=n-0.5) html+='<span style="position:relative;display:inline-block;color:var(--bd)">★<span style="position:absolute;left:0;top:0;overflow:hidden;width:50%;color:var(--amber)">★</span></span>';
+    else html+='<span style="color:var(--bd)">★</span>';
+  }
+  return `<span>${html} <span style="font-family:var(--fm);font-size:10px;color:var(--tx3)">${r}</span></span>`;
 }
-function setRating(n) { _rating=_rating===n?0:n; const el=document.getElementById('stars'); if(el) el.innerHTML=renderStars(_rating); }
+
+// ---- HALF-STAR RATING ----
+// Each star-wrap has left half (n-0.5) and right half (n) click zones
+function renderStars(r) {
+  let html = '';
+  for(let n=1;n<=5;n++){
+    const full = r>=n;
+    const half = !full && r>=(n-0.5);
+    const fillW = full?'100%':half?'50%':'0%';
+    html += `<span class="star-wrap" 
+      onmousemove="hoverStar(event,this,${n})" 
+      onmouseleave="unhoverStars()"
+      onclick="clickStar(event,this,${n})">
+      <span class="star-bg">★</span>
+      <span class="star-fill" style="width:${fillW}">★</span>
+    </span>`;
+  }
+  const lbl = r===0?'未评分':`${r} 分`;
+  html += `<span class="star-label" id="star-lbl">${lbl}</span>`;
+  return html;
+}
+function hoverStar(e,el,n){
+  const rect=el.getBoundingClientRect();
+  const half=e.clientX<rect.left+rect.width/2;
+  const v=half?n-0.5:n;
+  // preview
+  document.querySelectorAll('.star-fill').forEach((sf,i)=>{
+    if(v>=(i+1)) sf.style.width='100%';
+    else if(v>=(i+0.5)) sf.style.width='50%';
+    else sf.style.width='0%';
+  });
+  const lbl=document.getElementById('star-lbl');
+  if(lbl) lbl.textContent=`${v} 分`;
+}
+function unhoverStars(){
+  // restore to _rating
+  document.querySelectorAll('.star-fill').forEach((sf,i)=>{
+    if(_rating>=(i+1)) sf.style.width='100%';
+    else if(_rating>=(i+0.5)) sf.style.width='50%';
+    else sf.style.width='0%';
+  });
+  const lbl=document.getElementById('star-lbl');
+  if(lbl) lbl.textContent=_rating===0?'未评分':`${_rating} 分`;
+}
+function clickStar(e,el,n){
+  const rect=el.getBoundingClientRect();
+  const half=e.clientX<rect.left+rect.width/2;
+  const v=half?n-0.5:n;
+  _rating=_rating===v?0:v;
+  document.getElementById('stars').innerHTML=renderStars(_rating);
+}
+function setRating(n){_rating=n;const el=document.getElementById('stars');if(el)el.innerHTML=renderStars(_rating);}
 
 function pickStatus(btn) {
   document.querySelectorAll('#status-opts .sopt').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
 
+// ---- LINKS (supports URL or GitHub file upload) ----
 function renderLinkRows() {
-  return _links.map((l,i)=>`
-    <div class="li-row">
-      <input class="fi" style="max-width:150px" placeholder="名称" value="${ea(l.name||'')}" oninput="_links[${i}].name=this.value">
-      <input class="fi" placeholder="链接 URL" value="${ea(l.url||'')}" oninput="_links[${i}].url=this.value">
-      <button class="lrm" onclick="rmLink(${i})">×</button>
-    </div>`).join('');
+  return _links.map((l,i)=>{
+    const isFile = l.type==='file';
+    return `<div class="li-row" style="flex-wrap:wrap;gap:5px;align-items:flex-start;padding:8px;background:var(--bg2);border-radius:var(--rs);border:1px solid var(--bd)">
+      <div style="display:flex;gap:5px;width:100%">
+        <input class="fi" style="max-width:140px;flex-shrink:0" placeholder="显示名称" value="${ea(l.name||'')}" oninput="_links[${i}].name=this.value">
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="btn sm${!isFile?' on':''}" onclick="setLinkType(${i},'link')" style="${!isFile?'background:var(--ac);color:#fff;border-color:var(--ac)':''}">🔗 链接</button>
+          <button class="btn sm${isFile?' on':''}" onclick="setLinkType(${i},'file')" style="${isFile?'background:var(--blue);color:#fff;border-color:var(--blue)':''}"${!isConnected()?' disabled title="需先连接GitHub"':''}>📎 文件</button>
+        </div>
+        <button class="lrm" onclick="rmLink(${i})" style="margin-left:auto">×</button>
+      </div>
+      ${isFile ? `
+        <div style="width:100%;display:flex;gap:5px;align-items:center">
+          <input type="file" id="lf-${i}" style="display:none" onchange="uploadLinkFile(event,${i})">
+          <button class="btn sm" onclick="document.getElementById('lf-${i}').click()">选择文件</button>
+          <span style="font-size:12px;color:var(--tx3)" id="lf-name-${i}">${l.filename||'未选择'}</span>
+          ${l.url?`<a href="${ea(l.url)}" target="_blank" style="font-size:11px;color:var(--blue)">已上传 ↗</a>`:''}
+          ${l._uploading?'<span style="font-size:11px;color:var(--amber)">上传中...</span>':''}
+        </div>` : `
+        <input class="fi" style="width:100%" placeholder="https://..." value="${ea(l.url||'')}" oninput="_links[${i}].url=this.value">`}
+    </div>`;
+  }).join('');
 }
-function addLink() { _links.push({name:`链接${_links.length+1}`,url:''}); document.getElementById('ll').innerHTML=renderLinkRows(); }
+function setLinkType(i,type){
+  _links[i].type=type;
+  if(type==='link'){_links[i].filename=undefined;_links[i]._uploading=false;}
+  document.getElementById('ll').innerHTML=renderLinkRows();
+}
+async function uploadLinkFile(e,i){
+  const f=e.target.files[0]; if(!f) return;
+  const el=document.getElementById(`lf-name-${i}`);
+  if(el) el.textContent='上传中...';
+  _links[i].filename=f.name;
+  _links[i]._uploading=true;
+  document.getElementById('ll').innerHTML=renderLinkRows();
+  const {githubToken:tk,githubRepo:repo}=store.settings;
+  const path=`assets/doc/${f.name}`;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const b64=ev.target.result.split(',')[1];
+    try{
+      let sha=null;
+      const gr=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json'}});
+      if(gr.ok){const d=await gr.json();sha=d.sha;}
+      const body={message:`Upload asset ${f.name}`,content:b64,...(sha?{sha}:{})};
+      const pr=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{method:'PUT',headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(pr.ok){
+        const d=await pr.json();
+        _links[i].url=d.content?.download_url||`https://raw.githubusercontent.com/${repo}/main/${path}`;
+        _links[i]._uploading=false;
+        toast(`${f.name} 已上传`,'ok');
+      } else {
+        _links[i]._uploading=false;
+        toast('文件上传失败','err');
+      }
+    }catch(err){_links[i]._uploading=false;toast(`错误:${err.message}`,'err');}
+    document.getElementById('ll').innerHTML=renderLinkRows();
+  };
+  reader.readAsDataURL(f);
+}
+function addLink() { _links.push({name:`链接${_links.length+1}`,url:'',type:'link'}); document.getElementById('ll').innerHTML=renderLinkRows(); }
 function rmLink(i) { _links.splice(i,1); document.getElementById('ll').innerHTML=renderLinkRows(); }
 
 function renderSelectedCountries() {
@@ -1259,7 +1438,7 @@ function tagSelected() {
       <div class="mhd"><div class="mtt">批量标签 (${selected.size} 项)</div><button class="mclose" onclick="closeM('tag-modal')">×</button></div>
       <div class="mbody">
         <div style="display:flex;flex-wrap:wrap;gap:5px" id="btags">
-          ${[...COUNTRIES,...TYPE_TAGS].map(t=>`<button class="topt" onclick="this.classList.toggle('on')">${eh(t)}</button>`).join('')}
+          ${[...COUNTRIES,...getAllTypeTags()].map(t=>`<button class="topt" onclick="this.classList.toggle('on')">${eh(t)}</button>`).join('')}
         </div>
         <div style="margin-top:12px;display:flex;gap:12px;font-size:13px;color:var(--tx2)">
           <label><input type="radio" name="tm" value="add" checked> 添加</label>
@@ -1853,6 +2032,20 @@ function renderSettings(){
     </div>
 
     <div class="stg-sec">
+      <div class="stg-tt">🏷️ 自定义标签</div>
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:14px">
+        <p style="font-size:12.5px;color:var(--tx3);margin-bottom:10px">在此添加自定义类型标签，将永久保存在本地</p>
+        <div style="display:flex;gap:7px;margin-bottom:10px">
+          <input class="fi" id="custom-tag-input" placeholder="输入标签名（可加emoji前缀，如 🌟 特别推荐）" style="margin:0">
+          <button class="btn primary" onclick="addCustomTag()">添加</button>
+        </div>
+        <div id="custom-tags-list" style="display:flex;flex-wrap:wrap;gap:5px">
+          ${(store.settings.customTags||[]).map(t=>`<span class="tchip" style="cursor:default">${eh(t)} <span onclick="removeCustomTag('${esc(t)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="stg-sec">
       <div class="stg-tt">数据管理</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="openExportModal()">📤 导出 JSON</button>
@@ -1910,6 +2103,33 @@ async function pullFromGh(){
   toast(`已拉取 ${items.length} 条记录`,'ok');
 }
 
+// ---- CUSTOM TAGS ----
+function addCustomTag(){
+  const inp=document.getElementById('custom-tag-input');
+  const tag=inp?.value?.trim();
+  if(!tag){toast('请输入标签名','err');return;}
+  if(!store.settings.customTags) store.settings.customTags=[];
+  if(store.settings.customTags.includes(tag)){toast('标签已存在','err');return;}
+  store.settings.customTags.push(tag);
+  save();
+  inp.value='';
+  // re-render custom tags list
+  const el=document.getElementById('custom-tags-list');
+  if(el) el.innerHTML=(store.settings.customTags||[]).map(t=>`<span class="tchip" style="cursor:default">${eh(t)} <span onclick="removeCustomTag('${esc(t)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('');
+  toast(`已添加标签"${tag}"`,'ok');
+}
+function removeCustomTag(tag){
+  store.settings.customTags=(store.settings.customTags||[]).filter(t=>t!==tag);
+  save();
+  const el=document.getElementById('custom-tags-list');
+  if(el) el.innerHTML=(store.settings.customTags||[]).map(t=>`<span class="tchip" style="cursor:default">${eh(t)} <span onclick="removeCustomTag('${esc(t)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('');
+  toast('标签已删除','ok');
+}
+// Get all type tags (built-in + custom)
+function getAllTypeTags(){
+  return [...TYPE_TAGS,...(store.settings.customTags||[])];
+}
+
 function clearAll(){
   if(!confirm('确认清空全部数据？')) return;
   store.items=[];store.spaces=[];save();updateCounts();renderContent();renderSpaceNav();
@@ -1940,7 +2160,7 @@ function renderAbout(){
       <div class="feat"><div class="feat-i">📦</div><div class="feat-t">独立空间</div><div class="feat-d">导入他人分享的 JSON，作为独立空间查看，不影响主数据</div></div>
       <div class="feat"><div class="feat-i">🏷️</div><div class="feat-t">多维标签</div><div class="feat-d">国别、类型等多维度标签，支持多条件筛选过滤</div></div>
       <div class="feat"><div class="feat-i">📊</div><div class="feat-t">数据统计</div><div class="feat-d">可视化统计概览，分类评分，热门标签排行</div></div>
-      <div class="feat"><div class="feat-i">📁</div><div class="feat-t">文件分享</div><div class="feat-d">上传文件到仓库 assets/doc 文件夹，供访客下载</div></div>
+      <div class="feat"><div class="feat-i">📎</div><div class="feat-t">文件附件</div><div class="feat-d">在添加记录时直接上传文件到 GitHub assets/doc，生成可分享的下载链接</div></div>
     </div>
     <div style="margin-top:22px;padding:16px;background:var(--acl);border:1px solid var(--ac);border-radius:var(--r);font-size:13px;color:var(--tx2);line-height:1.8">
       💡 <strong style="color:var(--ac)">封面建议</strong>：优先使用图片链接（如豆瓣、TMDB 等封面 URL），避免上传大文件导致 JSON 体积过大，影响 GitHub 同步性能。
