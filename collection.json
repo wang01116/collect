@@ -118,6 +118,13 @@
         "name": "百度百科",
         "url": "https://baike.baidu.com/item/%E8%AE%BA%E6%B3%95%E7%9A%84%E7%B2%BE%E7%A5%9E/2029320",
         "type": "file"
+      },
+      {
+        "name": "下载",
+        "url": "https://raw.githubusercontent.com/wang01116/collect/main/assets/doc/v3.0.zip",
+        "type": "file",
+        "filename": "v3.0.zip",
+        "_uploading": false
       }
     ],
     "tags": [
@@ -128,6 +135,6 @@
     "status": "unwatched",
     "rating": 4,
     "createdAt": "2026-04-07T13:17:55.992Z",
-    "updatedAt": "2026-04-10T05:17:03.652Z"
+    "updatedAt": "2026-04-10T05:17:24.242Z"
   }
 ]
