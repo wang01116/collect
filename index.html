@@ -4,8 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#c8773a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="藏·索引">
 <title>藏·索引</title>
 <link rel="manifest" id="pwa-manifest">
+<link rel="icon" id="site-favicon" href="img/logo.ico" type="image/x-icon">
+<link rel="apple-touch-icon" id="apple-touch-icon" href="img/logo.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -475,11 +480,18 @@ textarea.fi{resize:vertical;min-height:72px}
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-mark">
-      <span class="logo-title">藏·索引</span>
-      <span class="logo-version">v4</span>
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:34px;height:34px;border-radius:9px;overflow:hidden;flex-shrink:0;background:var(--ac);display:flex;align-items:center;justify-content:center">
+        <img id="site-logo-img" src="img/logo.ico" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div style="display:flex;align-items:baseline;gap:5px">
+          <span class="logo-title" id="site-title">藏·索引</span>
+          <span class="logo-version">v4</span>
+        </div>
+        <div class="logo-sub" id="site-sub">MY COLLECTION UNIVERSE</div>
+      </div>
     </div>
-    <div class="logo-sub" id="site-sub">MY COLLECTION UNIVERSE</div>
   </div>
   <div class="gh-status" id="gh-status" onclick="navigateTo('settings')">
     <div class="gh-dot" id="gh-dot"></div>
@@ -487,6 +499,7 @@ textarea.fi{resize:vertical;min-height:72px}
   </div>
   <nav class="sidebar-nav">
     <div class="nav-sec">收藏分类</div>
+    <div id="sidebar-cats-nav">
     <button class="nav-item active" data-page="books" onclick="navigateTo('books')">
       <span class="ni">📚</span>图书<span class="nc" id="cnt-books">0</span>
     </button>
@@ -502,6 +515,9 @@ textarea.fi{resize:vertical;min-height:72px}
     <button class="nav-item" data-page="other" onclick="navigateTo('other')">
       <span class="ni">🗂️</span>其他<span class="nc" id="cnt-other">0</span>
     </button>
+    <!-- Custom categories injected here by JS -->
+    <div id="custom-cat-nav"></div>
+    </div>
     <div class="nav-sec" style="margin-top:6px">功能</div>
     <button class="nav-item" data-page="stats" onclick="navigateTo('stats')">
       <span class="ni">📊</span>统计
@@ -531,9 +547,10 @@ textarea.fi{resize:vertical;min-height:72px}
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">📚 图书</div>
     <div class="topbar-actions">
-      <div class="search-wrap">
+      <div class="search-wrap" id="search-wrap-el">
         <span>🔍</span>
-        <input type="text" placeholder="搜索..." id="search-inp" oninput="onSearch()">
+        <input type="text" placeholder="全局搜索所有分类..." id="search-inp" oninput="onSearch()" onfocus="showGlobalSearchHint()" onkeydown="if(event.key==='Escape'){clearSearch()}">
+        <button id="search-clear-btn" onclick="clearSearch()" style="display:none;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer;padding:0 2px;line-height:1">×</button>
       </div>
       <button class="ibtn" id="sel-btn" onclick="toggleSelectMode()" title="多选" style="display:none">☑️</button>
       <button class="ibtn" onclick="toggleDark()" id="dark-btn" title="深色模式">🌙</button>
@@ -684,9 +701,14 @@ function init() {
   view = store.settings.view || 'grid';
   sort = store.settings.sortBy || 'createdAt';
   if(store.settings.dark) applyDark(true);
+  // Load custom categories from saved settings into CATS
+  (store.settings.customCats||[]).forEach(c=>{
+    if(!CATS[c.key]) CATS[c.key]={label:c.label,icon:c.icon,type:c.type};
+  });
   setupPWA();
   refreshGhStatus();
   renderSpaceNav();
+  renderSidebarCats(); // re-render with custom cats
   navigateTo(page);
   updateCounts();
 }
@@ -720,7 +742,7 @@ function navigateTo(p, spaceId=null) {
   document.querySelectorAll('.space-nav-item').forEach(el=>{
     el.classList.toggle('active', el.dataset.space===spaceId);
   });
-  const collPages = ['books','anime','movies','series','other'];
+  const collPages = Object.keys(CATS); // all categories including custom
   const inColl = collPages.includes(p);
   document.getElementById('fab').style.display = inColl ? 'flex' : 'none';
   document.getElementById('sel-btn').style.display = inColl ? 'flex' : 'none';
@@ -743,7 +765,7 @@ function navigateTo(p, spaceId=null) {
 // ============================================================
 function renderGuestBanner() {
   const w = document.getElementById('guest-banner-wrap');
-  const collPages = ['books','anime','movies','series','other'];
+  const collPages = Object.keys(CATS); // all categories including custom
   if(!collPages.includes(page) || isConnected()) { w.innerHTML=''; return; }
   w.innerHTML=`<div class="guest-banner">
     <span class="gb-icon">🔒</span>
@@ -812,7 +834,7 @@ function renderFilterBar() {
 
   let html = `<div class="filter-row">`;
   html += `<span style="font-size:11px;color:var(--tx3);flex-shrink:0;align-self:center">状态</span>`;
-  STATUS_OPTS.forEach(s=>{
+  getAllStatusOpts().forEach(s=>{
     html+=`<button class="ftag${filters.status.includes(s.id)?' on':''}" onclick="toggleStatusFilter('${s.id}')">${s.label}</button>`;
   });
   if(hasLocal) html+=`<button class="ftag${filters.tags.includes('__local__')?' on local-tag':''}" onclick="toggleTagFilter('__local__')">📍 本地</button>`;
@@ -842,7 +864,117 @@ function toggleTagFilter(t) {
   renderContent();
 }
 function clearFilters() { filters={status:[],tags:[]}; renderContent(); }
-function onSearch() { searchQ=document.getElementById('search-inp').value; renderContent(); }
+// ============================================================
+// GLOBAL SEARCH
+// ============================================================
+function onSearch() {
+  searchQ = document.getElementById('search-inp').value;
+  const clearBtn = document.getElementById('search-clear-btn');
+  if(clearBtn) clearBtn.style.display = searchQ ? 'block' : 'none';
+  if(searchQ.trim().length >= 1) {
+    renderGlobalSearch(searchQ.trim());
+  } else {
+    renderContent();
+  }
+}
+
+function clearSearch() {
+  searchQ = '';
+  const inp = document.getElementById('search-inp');
+  if(inp) inp.value = '';
+  const clearBtn = document.getElementById('search-clear-btn');
+  if(clearBtn) clearBtn.style.display = 'none';
+  renderContent();
+}
+
+function showGlobalSearchHint() {
+  // no-op, hint is in placeholder
+}
+
+function renderGlobalSearch(q) {
+  const lower = q.toLowerCase();
+  // Search main store across all categories
+  const mainResults = store.items.filter(i =>
+    (i.title||'').toLowerCase().includes(lower) ||
+    (i.author||'').toLowerCase().includes(lower) ||
+    (i.desc||'').toLowerCase().includes(lower) ||
+    (i.publisher||'').toLowerCase().includes(lower) ||
+    (i.cast||'').toLowerCase().includes(lower) ||
+    (i.voice||'').toLowerCase().includes(lower) ||
+    (i.tags||[]).some(t=>t.toLowerCase().includes(lower))
+  );
+  // Search spaces
+  const spaceResults = [];
+  store.spaces.forEach(sp => {
+    sp.items.filter(i =>
+      (i.title||'').toLowerCase().includes(lower) ||
+      (i.author||'').toLowerCase().includes(lower) ||
+      (i.desc||'').toLowerCase().includes(lower) ||
+      (i.tags||[]).some(t=>t.toLowerCase().includes(lower))
+    ).forEach(i => spaceResults.push({...i, _spaceName: sp.name, _spaceId: sp.id}));
+  });
+
+  const total = mainResults.length + spaceResults.length;
+  const c = document.getElementById('content');
+
+  // Group main results by category
+  const byCat = {};
+  mainResults.forEach(i => {
+    if(!byCat[i.category]) byCat[i.category] = [];
+    byCat[i.category].push(i);
+  });
+
+  let html = `<div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="font-size:14px;font-weight:600">🔍 搜索 "${eh(q)}"</span>
+    <span style="font-size:12px;color:var(--tx3);font-family:var(--fm)">${total} 项结果</span>
+    <button class="btn sm" onclick="clearSearch()">清除搜索</button>
+  </div>`;
+
+  if(total === 0) {
+    html += `<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">未找到结果</div><div class="empty-s">尝试其他关键词</div></div>`;
+  } else {
+    // Main store results grouped by category
+    Object.entries(byCat).forEach(([cat, items]) => {
+      const catInfo = CATS[cat] || getAllCats()[cat] || {icon:'📁', label: cat};
+      html += `<div style="margin-bottom:18px">
+        <div style="font-size:13px;font-weight:700;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <span>${catInfo.icon}</span>${catInfo.label}
+          <span style="font-size:11px;font-family:var(--fm);color:var(--tx3);font-weight:400">${items.length} 项</span>
+        </div>`;
+      // temporarily override currentSpace to null for rendering
+      const savedSpace = currentSpace;
+      currentSpace = null;
+      html += renderList(items);
+      currentSpace = savedSpace;
+      html += `</div>`;
+    });
+
+    // Space results
+    if(spaceResults.length) {
+      html += `<div style="margin-bottom:18px">
+        <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <span>📦</span>导入空间
+          <span style="font-size:11px;font-family:var(--fm);color:var(--tx3);font-weight:400">${spaceResults.length} 项</span>
+        </div>`;
+      html += `<div class="list-view">`;
+      spaceResults.forEach(it => {
+        html += `<div class="list-card" onclick="openDetail('${it.id}')">
+          <div class="lcc">${coverHTML(it)}</div>
+          <div class="li">
+            <div class="lt">${eh(it.title||'无标题')} ${statusBadge(it)} <span class="sbadge local">${eh(it._spaceName)}</span></div>
+            <div class="lm">
+              ${CATS[it.category]?.icon||''} ${CATS[it.category]?.label||it.category}
+              ${it.author?`· 👤 ${eh(it.author)}`:''}
+            </div>
+            ${it.desc?`<div class="ld">${eh(it.desc)}</div>`:''}
+          </div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+  }
+  c.innerHTML = html;
+}
 
 // ============================================================
 // VIEW CONTROLS
@@ -882,8 +1014,8 @@ function coverHTML(item) {
     // accept any image URL including webp, gif, jpg, png etc.
     return `<img src="${ea(item.cover)}" alt="" loading="lazy" onerror="this.style.display='none'">`;
   }
-  const em={books:'📖',anime:'🎌',movies:'🎬',series:'📺',other:'🗂️'};
-  return `<div class="no-cover-icon">${em[item.category]||'📄'}</div>`;
+  const allCatsNow = getAllCats();
+  return `<div class="no-cover-icon">${allCatsNow[item.category]?.icon||'📄'}</div>`;
 }
 
 function statusBadge(item, abs=false) {
@@ -987,11 +1119,19 @@ function openDetail(id) {
             </div>
             <div class="det-metas">
               ${item.author?`<div class="det-meta"><strong>作者</strong>${eh(item.author)}</div>`:''}
+              ${item.publisher?`<div class="det-meta"><strong>出版方</strong>${eh(item.publisher)}</div>`:''}
               ${item.year?`<div class="det-meta"><strong>年份</strong>${eh(item.year)}</div>`:''}
               ${item.episodes?`<div class="det-meta"><strong>集数</strong>${eh(item.episodes)}</div>`:''}
+              ${item.cast?`<div class="det-meta"><strong>演员</strong>${eh(item.cast)}</div>`:''}
+              ${item.voice?`<div class="det-meta"><strong>配音</strong>${eh(item.voice)}</div>`:''}
             </div>
             ${item.tags?.length?`<div class="ltags">${item.tags.map(t=>`<span class="tchip">${eh(t)}</span>`).join('')}</div>`:''}
-            ${item.links?.length?`<div class="det-links">${item.links.map(l=>`<a href="${ea(l.url)}" target="_blank" rel="noopener" class="det-link">🔗 ${eh(l.name||'链接')}</a>`).join('')}</div>`:''}
+            ${item.links?.length?`<div class="det-links">${item.links.map(l=>`
+              <a href="${ea(l.url)}" target="_blank" rel="noopener" class="det-link">${l.type==='file'?'📎':'🔗'} ${eh(l.name||'链接')}</a>
+              ${l.type==='file'?`
+                <button class="det-link" onclick="copyToClipboard('${ea(l.url)}')" style="cursor:pointer;border:none">📋</button>
+                <button class="det-link" onclick="showQRCode('${ea(l.url)}','${ea(l.name||l.filename||'下载')}')" style="cursor:pointer;border:none">📱</button>
+              `:''}`).join('')}</div>`:''}
           </div>
         </div>
         ${descHTML?`<div class="det-sec"><div class="det-sec-t">简介</div><div class="mdc">${descHTML}</div></div>`:''}
@@ -1035,7 +1175,7 @@ function openAddModal(itemId=null) {
   _cover = it?.cover || '';
   _rating = it?.rating || 0;
   _tags = new Set(it?.tags||[]);
-  const isBook = page==='books';
+  const isBook = (getAllCats()[page]?.type||'media')==='book';
 
   const html=`<div class="moverlay" id="add-modal" onclick="closeM('add-modal')">
     <div class="modal" onclick="event.stopPropagation()" style="max-width:640px">
@@ -1069,6 +1209,21 @@ function openAddModal(itemId=null) {
           <label class="fl">作者 / 导演</label>
           <input class="fi" id="f-author" placeholder="作者名称" value="${ea(it?.author||'')}">
         </div>
+        <!-- OPTIONAL FIELDS -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+          <div class="fg">
+            <label class="fl">出版方 / 出品方 <span style="color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0">可选</span></label>
+            <input class="fi" id="f-publisher" placeholder="出版社/制作公司" value="${ea(it?.publisher||'')}">
+          </div>
+          <div class="fg">
+            <label class="fl">主演 / 演员 <span style="color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0">可选</span></label>
+            <input class="fi" id="f-cast" placeholder="主要演员（逗号分隔）" value="${ea(it?.cast||'')}">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">配音 <span style="color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0">可选</span></label>
+          <input class="fi" id="f-voice" placeholder="配音演员（逗号分隔）" value="${ea(it?.voice||'')}">
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
           <div class="fg">
             <label class="fl">${isBook?'出版年份':'年份'}</label>
@@ -1081,7 +1236,7 @@ function openAddModal(itemId=null) {
         <div class="fg">
           <label class="fl">状态</label>
           <div class="status-opts" id="status-opts">
-            ${STATUS_OPTS.map(s=>`<button class="sopt ${s.cls}${(it?.status||'unwatched')===s.id?' on':''}" data-val="${s.id}" onclick="pickStatus(this)">${s.label}</button>`).join('')}
+            ${getAllStatusOpts().map(s=>`<button class="sopt ${s.cls}${(it?.status||'unwatched')===s.id?' on':''}" data-val="${s.id}" onclick="pickStatus(this)">${s.label}</button>`).join('')}
           </div>
         </div>
         <!-- RATING -->
@@ -1107,10 +1262,10 @@ function openAddModal(itemId=null) {
         </div>
         <!-- TAGS -->
         <div class="fg">
-          <label class="fl">国别标签</label>
+          <label class="fl">国别标签 <span style="color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0">可多选</span></label>
           <select class="country-sel" id="f-country" onchange="pickCountry(this.value)">
-            <option value="">— 选择国别 —</option>
-            ${COUNTRIES.map(c=>`<option value="${ea(c)}"${_tags.has(c)?'':''} ${[..._tags].includes(c)?'selected':''}>${eh(c)}</option>`).join('')}
+            <option value="">＋ 添加国别（可多选）</option>
+            ${getAllCountries().map(c=>`<option value="${ea(c)}"${_tags.has(c)?'':'' ${[..._tags].includes(c)?'selected':''}>${eh(c)}</option>`).join('')}
           </select>
           <div id="country-selected" style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px">
             ${renderSelectedCountries()}
@@ -1215,12 +1370,21 @@ function renderLinkRows() {
         <button class="lrm" onclick="rmLink(${i})" style="margin-left:auto">×</button>
       </div>
       ${isFile ? `
-        <div style="width:100%;display:flex;gap:5px;align-items:center">
-          <input type="file" id="lf-${i}" style="display:none" onchange="uploadLinkFile(event,${i})">
-          <button class="btn sm" onclick="document.getElementById('lf-${i}').click()">选择文件</button>
-          <span style="font-size:12px;color:var(--tx3)" id="lf-name-${i}">${l.filename||'未选择'}</span>
-          ${l.url?`<a href="${ea(l.url)}" target="_blank" style="font-size:11px;color:var(--blue)">已上传 ↗</a>`:''}
-          ${l._uploading?'<span style="font-size:11px;color:var(--amber)">上传中...</span>':''}
+        <div style="width:100%;display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+            <input type="file" id="lf-${i}" style="display:none" onchange="uploadLinkFile(event,${i})">
+            <button class="btn sm" onclick="document.getElementById('lf-${i}').click()">⬆️ 上传新文件</button>
+            <button class="btn sm" onclick="pickExistingFile(${i})" ${!isConnected()?'disabled title="需先连接GitHub"':''}>📁 选择已有文件</button>
+            <span style="font-size:12px;color:var(--tx3)" id="lf-name-${i}">${l.filename||'未选择'}</span>
+            ${l._uploading?'<span style="font-size:11px;color:var(--amber)">上传中...</span>':''}
+          </div>
+          ${l.url?`
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <a href="${ea(l.url)}" target="_blank" class="btn sm" style="padding:3px 9px">↗ 打开</a>
+            <button class="btn sm" onclick="copyToClipboard('${ea(l.url)}')" style="padding:3px 9px">📋 复制链接</button>
+            <button class="btn sm" onclick="showQRCode('${ea(l.url)}','${ea(l.name||l.filename||'下载')}')" style="padding:3px 9px">📱 二维码</button>
+            <button class="btn sm danger" onclick="if(confirm('⚠️ 从 GitHub 永久删除文件「${ea(l.filename||l.name)}」？\n\n此操作不可撤回！\n请确认没有其他记录共用此链接，且未曾单独分享给他人。')){deleteGithubAsset('${ea(l.url)}','${ea(l.filename||'file')}');_links[${i}].url='';_links[${i}].filename='';document.getElementById('ll').innerHTML=renderLinkRows();}" style="padding:3px 9px">🗑️ 删除文件</button>
+          </div>`:''}
         </div>` : `
         <input class="fi" style="width:100%" placeholder="https://..." value="${ea(l.url||'')}" oninput="_links[${i}].url=this.value">`}
     </div>`;
@@ -1238,8 +1402,9 @@ async function uploadLinkFile(e,i){
   _links[i].filename=f.name;
   _links[i]._uploading=true;
   document.getElementById('ll').innerHTML=renderLinkRows();
-  const {githubToken:tk,githubRepo:repo}=store.settings;
-  const path=`assets/doc/${f.name}`;
+  const {githubToken:tk,githubRepo:repo,assetFolder}=store.settings;
+  const assetDir=(assetFolder||'assets/doc').replace(/\/$/,'');
+  const path=`${assetDir}/${f.name}`;
   const reader=new FileReader();
   reader.onload=async ev=>{
     const b64=ev.target.result.split(',')[1];
@@ -1263,19 +1428,211 @@ async function uploadLinkFile(e,i){
   };
   reader.readAsDataURL(f);
 }
+// ---- DELETE GITHUB ASSET ----
+// Permanently deletes an uploaded file from GitHub by its download URL
+// Called when user removes a file-type link from edit modal or confirms deletion
+async function deleteGithubAsset(fileUrl, filename) {
+  const {githubToken:tk, githubRepo:repo} = store.settings;
+  if(!tk||!repo) { toast('未连接 GitHub，跳过文件删除','info'); return; }
+  // Extract repo-relative path from raw.githubusercontent.com URL
+  let path = '';
+  try {
+    const u = new URL(fileUrl);
+    if(u.hostname.includes('raw.githubusercontent.com')) {
+      // URL format: /owner/repo/branch/path/to/file
+      const parts = u.pathname.split('/');
+      // skip leading '', owner, repo, branch → path starts at index 4
+      path = parts.slice(4).join('/');
+    } else {
+      // Fallback: use asset folder + filename
+      const folder = (store.settings.assetFolder||'assets/doc').replace(/\/$/,'');
+      path = `${folder}/${filename}`;
+    }
+  } catch(e) {
+    const folder = (store.settings.assetFolder||'assets/doc').replace(/\/$/,'');
+    path = `${folder}/${filename}`;
+  }
+  if(!path) { toast('无法确定文件路径，请手动删除','err'); return; }
+  try {
+    // Get current SHA (required for delete)
+    const getR = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+      headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json'}
+    });
+    if(!getR.ok) { toast(`文件不存在或已被删除：${path}`,'info'); return; }
+    const fileData = await getR.json();
+    // Perform deletion
+    const delR = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+      method:'DELETE',
+      headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:`Delete asset ${filename}`, sha: fileData.sha})
+    });
+    if(delR.ok) toast(`GitHub 文件「${filename}」已永久删除`,'ok');
+    else toast('GitHub 文件删除失败，请手动检查仓库','err');
+  } catch(e) { toast(`删除出错：${e.message}`,'err'); }
+}
+
+// ---- CLIPBOARD & QR ----
+function copyToClipboard(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>toast('链接已复制','ok')).catch(()=>fallbackCopy(text));
+  } else { fallbackCopy(text); }
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');ta.value=text;
+  ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');toast('链接已复制','ok');}catch(e){toast('复制失败，请手动复制','err');}
+  document.body.removeChild(ta);
+}
+function showQRCode(url,name){
+  // Use QR server API to generate QR code image
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
+  setM(`<div class="moverlay" id="qr-modal" onclick="closeM('qr-modal')">
+    <div class="modal" style="max-width:300px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">📱 二维码</div><button class="mclose" onclick="closeM('qr-modal')">×</button></div>
+      <div class="mbody" style="text-align:center">
+        <div style="font-size:13px;color:var(--tx2);margin-bottom:12px">${eh(name)}</div>
+        <img src="${qrUrl}" alt="QR Code" style="width:220px;height:220px;border-radius:var(--r);border:1px solid var(--bd)">
+        <div style="margin-top:12px;font-size:11px;color:var(--tx3);word-break:break-all">${eh(url)}</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+          <button class="btn sm" onclick="copyToClipboard('${ea(url)}')">📋 复制链接</button>
+          <a href="${qrUrl}" download="qrcode.png" class="btn sm">⬇️ 保存二维码</a>
+        </div>
+      </div>
+    </div>
+  </div>`);
+}
+
+// Pick existing uploaded file from GitHub for a link
+async function pickExistingFile(linkIdx) {
+  const {githubToken:tk, githubRepo:repo, assetFolder} = store.settings;
+  if(!tk||!repo) { toast('请先连接 GitHub','err'); return; }
+  const folder = (assetFolder||'assets/doc').replace(/\/$/,'');
+  setM(`<div class="moverlay" id="pick-file-modal" onclick="closeM('pick-file-modal')">
+    <div class="modal" style="max-width:480px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">📁 选择已有文件</div><button class="mclose" onclick="closeM('pick-file-modal')">×</button></div>
+      <div class="mbody">
+        <p style="font-size:12.5px;color:var(--tx3);margin-bottom:10px">从 GitHub 仓库 ${folder}/ 选择文件：</p>
+        <div id="pick-file-list"><div style="text-align:center;padding:20px;color:var(--tx3)">加载中...</div></div>
+      </div>
+    </div>
+  </div>`);
+  try {
+    const r = await fetch(`https://api.github.com/repos/${repo}/contents/${folder}`,{
+      headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json'}
+    });
+    const el = document.getElementById('pick-file-list');
+    if(!r.ok) { if(el) el.innerHTML='<div style="color:var(--tx3);text-align:center;padding:20px">文件夹不存在或为空</div>'; return; }
+    const files = await r.json();
+    if(!el) return;
+    if(!files.length) { el.innerHTML='<div style="color:var(--tx3);text-align:center;padding:20px">暂无文件</div>'; return; }
+    el.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px">' +
+      files.map(f=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rs);cursor:pointer" onclick="selectExistingFile(${linkIdx},'${f.download_url}','${f.name}')">
+          <span style="font-size:16px">📄</span>
+          <span style="flex:1;font-size:12.5px">${eh(f.name)}</span>
+          <span style="font-size:11px;color:var(--tx3)">${(f.size/1024).toFixed(1)} KB</span>
+          <span style="font-size:11px;color:var(--ac)">选用 →</span>
+        </div>`).join('') + '</div>';
+  } catch(e) { const el=document.getElementById('pick-file-list'); if(el) el.innerHTML=`<div style="color:var(--red);text-align:center;padding:20px">加载失败</div>`; }
+}
+
+function selectExistingFile(linkIdx, url, filename) {
+  _links[linkIdx].url = url;
+  _links[linkIdx].filename = filename;
+  _links[linkIdx].type = 'file';
+  closeM('pick-file-modal');
+  document.getElementById('ll').innerHTML = renderLinkRows();
+  toast(`已选择「${filename}」`,'ok');
+}
+
 function addLink() { _links.push({name:`链接${_links.length+1}`,url:'',type:'link'}); document.getElementById('ll').innerHTML=renderLinkRows(); }
-function rmLink(i) { _links.splice(i,1); document.getElementById('ll').innerHTML=renderLinkRows(); }
+function rmLink(i) {
+  const link = _links[i];
+  if(link && link.type==='file' && link.url && isConnected()) {
+    // Warn about GitHub file deletion
+    const doDelete = confirm(
+      '⚠️ 删除提示\n\n' +
+      '此链接指向已上传到 GitHub 的文件。\n' +
+      '是否同时从 GitHub 仓库删除该文件？\n\n' +
+      '⚠️ 此操作不可撤回！\n' +
+      '请确认：\n• 没有其他项目/作品共用此下载链接\n• 此链接未曾单独分享给他人\n\n' +
+      '点击「确定」= 同时删除 GitHub 文件\n点击「取消」= 仅移除链接，保留 GitHub 文件'
+    );
+    if(doDelete) {
+      deleteGithubFile(link.url, link.filename);
+    }
+  }
+  _links.splice(i,1);
+  document.getElementById('ll').innerHTML=renderLinkRows();
+}
+
+async function deleteGithubFile(url, filename) {
+  const {githubToken:tk,githubRepo:repo,assetFolder}=store.settings;
+  if(!tk||!repo) return;
+  // Extract path from URL
+  let filePath = '';
+  if(filename) {
+    const assetDir=(assetFolder||'assets/doc').replace(/\/$/,'');
+    filePath = `${assetDir}/${filename}`;
+  } else {
+    // Try to parse from raw URL
+    const m = url.match(/\/main\/(.+)$/);
+    if(m) filePath = m[1];
+  }
+  if(!filePath) { toast('无法确定文件路径，跳过删除','info'); return; }
+  try {
+    const getR=await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`,{
+      headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json'}
+    });
+    if(!getR.ok) { toast('文件不存在或已删除','info'); return; }
+    const d=await getR.json();
+    const delR=await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`,{
+      method:'DELETE',
+      headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:`Delete ${filename||filePath}`,sha:d.sha})
+    });
+    if(delR.ok) toast(`文件 ${filename||filePath} 已从 GitHub 删除`,'ok');
+    else toast('GitHub 文件删除失败','err');
+  } catch(e) { toast(`删除出错：${e.message}`,'err'); }
+}
 
 function renderSelectedCountries() {
-  return [..._tags].filter(t=>COUNTRIES.includes(t))
+  return [..._tags].filter(t=>getAllCountries().includes(t))
     .map(t=>`<span class="tchip" onclick="removeCountry('${esc(t)}')" style="cursor:pointer">${eh(t)} ×</span>`).join('');
 }
 function pickCountry(v) {
   if(v) { _tags.add(v); }
   document.getElementById('country-selected').innerHTML=renderSelectedCountries();
-  document.getElementById('f-country').value='';
+  // Refresh select to show which are selected/disabled
+  const sel = document.getElementById('f-country');
+  if(sel) {
+    sel.value='';
+    [...sel.options].forEach(opt => {
+      if(opt.value && _tags.has(opt.value)) {
+        opt.disabled = true;
+        if(!opt.text.endsWith(' ✓')) opt.text = opt.text + ' ✓';
+      } else {
+        opt.disabled = false;
+        opt.text = opt.text.replace(/ ✓$/, '');
+      }
+    });
+  }
 }
-function removeCountry(t) { _tags.delete(t); document.getElementById('country-selected').innerHTML=renderSelectedCountries(); }
+function removeCountry(t) {
+  _tags.delete(t);
+  document.getElementById('country-selected').innerHTML=renderSelectedCountries();
+  // Re-enable the option in dropdown
+  const sel = document.getElementById('f-country');
+  if(sel) {
+    [...sel.options].forEach(opt => {
+      if(opt.value===t) {
+        opt.disabled=false;
+        opt.text=opt.text.replace(/ ✓$/,'');
+      }
+    });
+  }
+}
 function toggleTypeTag(btn,t) { if(_tags.has(t)){_tags.delete(t);btn.classList.remove('on');}else{_tags.add(t);btn.classList.add('on');} }
 
 function handleCovFile(e) {
@@ -1320,8 +1677,14 @@ async function saveItem() {
     category: page,
     title,
     author: document.getElementById('f-author')?.value?.trim()||'',
+    publisher: document.getElementById('f-publisher')?.value?.trim()||'',
+    cast: document.getElementById('f-cast')?.value?.trim()||'',
+    voice: document.getElementById('f-voice')?.value?.trim()||'',
     year: document.getElementById('f-year')?.value?.trim()||'',
     episodes: document.getElementById('f-episodes')?.value?.trim()||'',
+    publisher: document.getElementById('f-publisher')?.value?.trim()||'',
+    cast: document.getElementById('f-cast')?.value?.trim()||'',
+    voice: document.getElementById('f-voice')?.value?.trim()||'',
     desc: document.getElementById('f-desc')?.value?.trim()||'',
     notes: document.getElementById('f-notes')?.value?.trim()||'',
     cover: _cover,
@@ -1358,7 +1721,28 @@ async function saveItem() {
 // DELETE ITEM
 // ============================================================
 async function deleteItem(id) {
-  if(!confirm('确认删除？')) return;
+  const item = store.items.find(i=>i.id===id);
+  if(!item) return;
+  // Check for uploaded file links
+  const fileLinks = (item.links||[]).filter(l=>l.type==='file'&&l.url);
+  let deleteFiles = false;
+  if(fileLinks.length>0 && isConnected()) {
+    const msg = `确认删除「${item.title}」？\n\n` +
+      `⚠️ 该记录包含 ${fileLinks.length} 个上传文件：\n` +
+      fileLinks.map(l=>`• ${l.name||l.filename||'文件'}`).join('\n') +
+      '\n\n是否同时从 GitHub 删除这些文件？\n' +
+      '⚠️ 此操作不可撤回！请确认没有其他记录或他人链接使用这些文件。\n\n' +
+      '确定 = 删除记录+文件 | 取消 = 仅删除记录，保留文件';
+    deleteFiles = confirm(msg);
+  } else {
+    if(!confirm(`确认删除「${item.title||'此记录'}」？`)) return;
+  }
+  // Delete files if requested
+  if(deleteFiles) {
+    for(const link of fileLinks) {
+      await deleteGithubFile(link.url, link.filename);
+    }
+  }
   store.items = store.items.filter(i=>i.id!==id);
   save(); updateCounts(); closeM('det-modal'); renderContent();
   toast('已删除','ok');
@@ -1409,7 +1793,7 @@ async function confirmMove() {
 
 function changeStatusSelected() {
   if(!selected.size) return;
-  const opts=STATUS_OPTS.map(s=>`<button class="sopt ${s.cls}" data-val="${s.id}" onclick="pickBulkStatus(this)">${s.label}</button>`).join('');
+  const opts=getAllStatusOpts().map(s=>`<button class="sopt ${s.cls}" data-val="${s.id}" onclick="pickBulkStatus(this)">${s.label}</button>`).join('');
   setM(`<div class="moverlay" id="st-modal" onclick="closeM('st-modal')">
     <div class="modal" style="max-width:340px" onclick="event.stopPropagation()">
       <div class="mhd"><div class="mtt">修改 ${selected.size} 项状态</div><button class="mclose" onclick="closeM('st-modal')">×</button></div>
@@ -1816,6 +2200,19 @@ function confirmImport(){
 // ============================================================
 // SPACE NAV
 // ============================================================
+// Render custom category nav items in sidebar
+function renderCustomCatNav(){
+  const el = document.getElementById('custom-cat-nav');
+  if(!el) return;
+  const custom = store.settings.customCats || {};
+  const items = Object.entries(custom);
+  if(!items.length){ el.innerHTML=''; return; }
+  el.innerHTML = items.map(([k,v])=>`
+    <button class="nav-item${page===k&&!currentSpace?' active':''}" data-page="${k}" onclick="navigateTo('${k}')">
+      <span class="ni">${v.icon||'📁'}</span>${eh(v.label)}<span class="nc" id="cnt-${k}">${store.items.filter(i=>i.category===k).length}</span>
+    </button>`).join('');
+}
+
 function renderSpaceNav(){
   const nav=document.getElementById('space-nav');
   if(!nav) return;
@@ -1842,7 +2239,7 @@ function openSpace(id){
 function renderSpacePage(){
   const sp=store.spaces.find(s=>s.id===currentSpace);
   if(!sp) return '<div class="empty"><div class="empty-i">❌</div><div>空间不存在</div></div>';
-  const cats=Object.entries(CATS);
+  const cats=Object.entries(getAllCats());
   const items=sp.items.filter(i=>i.category===page);
   const catNav=cats.map(([k,v])=>`
     <button class="ftag${page===k?' on':''}" onclick="spaceCatNav('${k}')">${v.icon} ${v.label} (${sp.items.filter(i=>i.category===k).length})</button>`).join('');
@@ -1915,23 +2312,89 @@ async function handleFileUpload(e){
   r.readAsDataURL(f);
 }
 
-async function loadFileList(){
+function openFileManager(){
+  if(!isConnected()){toast('请先连接 GitHub','err');return;}
+  const {assetFolder}=store.settings;
+  const folder=assetFolder||'assets/doc';
+  setM(`<div class="moverlay" id="fm-modal" onclick="closeM('fm-modal')">
+    <div class="modal" style="max-width:520px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">📁 文件管理器</div><button class="mclose" onclick="closeM('fm-modal')">×</button></div>
+      <div class="mbody">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+          <span style="font-size:12px;color:var(--tx3)">目录：${eh(folder)}</span>
+          <input type="file" id="fm-upload-input" style="display:none" onchange="fmUploadFile(event)">
+          <button class="btn sm primary" onclick="document.getElementById('fm-upload-input').click()">⬆️ 上传文件</button>
+          <button class="btn sm" onclick="loadFmList()">🔄 刷新</button>
+        </div>
+        <div id="fm-list"><div style="color:var(--tx3);font-size:13px;text-align:center;padding:20px">加载中...</div></div>
+      </div>
+    </div>
+  </div>`);
+  loadFmList();
+}
+
+async function fmUploadFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const {githubToken:tk,githubRepo:repo,assetFolder}=store.settings;
+  const folder=(assetFolder||'assets/doc').replace(/\/$/,'');
+  toast('上传中...','info');
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const b64=ev.target.result.split(',')[1];
+    const path=`${folder}/${f.name}`;
+    try{
+      let sha=null;
+      const gr=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json'}});
+      if(gr.ok){const d=await gr.json();sha=d.sha;}
+      const body={message:`Upload ${f.name}`,content:b64,...(sha?{sha}:{})};
+      const pr=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{method:'PUT',headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(pr.ok){toast(`${f.name} 已上传`,'ok');loadFmList();}
+      else toast('上传失败','err');
+    }catch(err){toast(`错误：${err.message}`,'err');}
+  };
+  reader.readAsDataURL(f);
+  e.target.value='';
+}
+
+async function fmDeleteFile(path,sha,name){
+  const {githubToken:tk,githubRepo:repo}=store.settings;
+  if(!confirm(`⚠️ 确认从 GitHub 永久删除文件「${name}」？\n\n此操作不可撤回！请确认：\n• 没有其他项目共用此文件链接\n• 此链接未曾单独分享给他人`)) return;
+  try{
+    const r=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+      method:'DELETE',
+      headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:`Delete ${name}`,sha})
+    });
+    if(r.ok){toast(`${name} 已删除`,'ok');loadFmList();}
+    else toast('删除失败','err');
+  }catch(e){toast(`错误：${e.message}`,'err');}
+}
+
+async function loadFmList(){
   const {githubToken:tk,githubRepo:repo}=store.settings;
   if(!tk||!repo) return;
-  const el=document.getElementById('file-list');if(!el) return;
-  el.innerHTML='<div style="color:var(--tx3);font-size:13px">加载中...</div>';
+  const {githubToken:tk,githubRepo:repo,assetFolder}=store.settings;
+  if(!tk||!repo) return;
+  const folder=(assetFolder||'assets/doc').replace(/\/$/,'');
+  const el=document.getElementById('fm-list')||document.getElementById('file-list');
+  if(!el) return;
+  el.innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:20px">加载中...</div>';
   try{
-    const r=await fetch(`https://api.github.com/repos/${repo}/contents/assets/doc`,{headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json'}});
-    if(!r.ok){el.innerHTML='<div style="color:var(--tx3);font-size:13px">文件夹不存在或为空</div>';return;}
+    const r=await fetch(`https://api.github.com/repos/${repo}/contents/${folder}`,{headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json'}});
+    if(!r.ok){el.innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:20px">文件夹不存在或为空</div>';return;}
     const files=await r.json();
-    el.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">${files.map(f=>`
-      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--sur);border:1px solid var(--bd);border-radius:var(--r)">
-        <span style="font-size:20px">📄</span>
-        <span style="flex:1;font-size:13px">${eh(f.name)}</span>
-        <span style="font-size:11px;color:var(--tx3)">${(f.size/1024).toFixed(1)} KB</span>
-        <a href="${f.download_url}" target="_blank" class="btn sm">下载</a>
+    if(!files.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:20px">暂无文件</div>';return;}
+    el.innerHTML=`<div style="display:flex;flex-direction:column;gap:7px">${files.map(f=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--sur);border:1px solid var(--bd);border-radius:var(--r)">
+        <span style="font-size:18px">📄</span>
+        <span style="flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${eh(f.name)}</span>
+        <span style="font-size:11px;color:var(--tx3);flex-shrink:0">${(f.size/1024).toFixed(1)} KB</span>
+        <a href="${f.download_url}" target="_blank" class="btn sm" style="flex-shrink:0;padding:3px 8px">⬇️</a>
+        <button class="btn sm" onclick="copyToClipboard('${f.download_url}')" style="flex-shrink:0;padding:3px 8px">📋</button>
+        <button class="btn sm" onclick="showQRCode('${f.download_url}','${eh(f.name)}')" style="flex-shrink:0;padding:3px 8px">📱</button>
+        <button class="btn sm danger" onclick="fmDeleteFile('${f.path}','${f.sha}','${eh(f.name)}')" style="flex-shrink:0;padding:3px 8px">🗑️</button>
       </div>`).join('')}</div>`;
-  }catch(e){el.innerHTML='<div style="color:var(--red);font-size:13px">加载失败</div>';}
+  }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:13px;text-align:center;padding:20px">加载失败：${e.message}</div>`;}
 }
 
 // ============================================================
@@ -1994,6 +2457,22 @@ function renderSettings(){
         <div class="stg-lbl"><div class="stg-name">深色模式</div></div>
         <button class="toggle${s.dark?' on':''}" id="dark-toggle" onclick="toggleDark()"></button>
       </div>
+      <div class="stg-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding-top:10px">
+        <div class="stg-lbl">
+          <div class="stg-name">网站 Logo</div>
+          <div class="stg-desc">将 logo.ico 放在仓库 img/ 文件夹下即可自动使用。下方为当前图标预览：</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:56px;height:56px;border-radius:12px;overflow:hidden;border:1px solid var(--bd)">
+            <img src="img/logo.ico" alt="logo" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML=getSVGLogoInline()">
+          </div>
+          <div style="font-size:12px;color:var(--tx3);line-height:1.7">
+            自定义图标：将图标文件命名为 <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">logo.ico</code><br>
+            放置在仓库 <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">img/</code> 目录中即可生效<br>
+            支持 .ico / .png / .svg 格式，建议 512×512px
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="stg-sec">
@@ -2016,7 +2495,12 @@ function renderSettings(){
           <div class="fg">
             <label class="fl">图片文件夹</label>
             <input class="fi" id="gh-img" value="${ea(s.imgFolder||'img')}" placeholder="img">
-            <div class="fhint">上传图片存储位置（根目录下）</div>
+            <div class="fhint">封面图片存储位置</div>
+          </div>
+          <div class="fg">
+            <label class="fl">附件文件夹</label>
+            <input class="fi" id="gh-assets" value="${ea(s.assetFolder||'assets/doc')}" placeholder="assets/doc">
+            <div class="fhint">上传的下载文件存储位置</div>
           </div>
         </div>
         <div class="stg-row" style="border:none;padding:4px 0">
@@ -2032,11 +2516,59 @@ function renderSettings(){
     </div>
 
     <div class="stg-sec">
-      <div class="stg-tt">🏷️ 自定义标签</div>
-      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:14px">
-        <p style="font-size:12.5px;color:var(--tx3);margin-bottom:10px">在此添加自定义类型标签，将永久保存在本地</p>
+      <div class="stg-tt">📂 自定义分类</div>
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:12px">
+        <p style="font-size:12.5px;color:var(--tx3);margin-bottom:10px">添加或删除收藏分类（内置分类无法删除）</p>
+        <div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">
+          <input class="fi" id="custom-cat-key" placeholder="英文ID（如 manga）" style="margin:0;max-width:120px">
+          <input class="fi" id="custom-cat-label" placeholder="名称（如 漫画）" style="margin:0;max-width:100px">
+          <input class="fi" id="custom-cat-icon" placeholder="图标emoji（如 📕）" style="margin:0;max-width:80px">
+          <select class="sel" id="custom-cat-type">
+            <option value="book">书籍字段</option>
+            <option value="media">媒体字段</option>
+          </select>
+          <button class="btn primary" onclick="addCustomCat()">添加分类</button>
+        </div>
+        <div id="custom-cats-list" style="display:flex;flex-wrap:wrap;gap:6px">
+          ${renderCustomCatsList()}
+        </div>
+      </div>
+    </div>
+
+    <div class="stg-sec">
+      <div class="stg-tt">🌍 自定义国别</div>
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:12px">
+        <p style="font-size:12.5px;color:var(--tx3);margin-bottom:10px">添加自定义国别（格式：🏳️ 国家名），支持多选</p>
         <div style="display:flex;gap:7px;margin-bottom:10px">
-          <input class="fi" id="custom-tag-input" placeholder="输入标签名（可加emoji前缀，如 🌟 特别推荐）" style="margin:0">
+          <input class="fi" id="custom-country-input" placeholder="🏳️ 新国家" style="margin:0">
+          <button class="btn primary" onclick="addCustomCountry()">添加</button>
+        </div>
+        <div id="custom-countries-list" style="display:flex;flex-wrap:wrap;gap:5px">
+          ${(store.settings.customCountries||[]).map(t=>`<span class="tchip" style="cursor:default">${eh(t)} <span onclick="removeCustomCountry('${esc(t)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="stg-sec">
+      <div class="stg-tt">🔖 自定义状态标签</div>
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:12px">
+        <p style="font-size:12.5px;color:var(--tx3);margin-bottom:10px">在已看/在看/未看之外，添加自定义状态（自定义状态使用「其他」颜色样式）</p>
+        <div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">
+          <input class="fi" id="custom-status-label" placeholder="🎯 想买" style="margin:0;max-width:150px">
+          <button class="btn primary" onclick="addCustomStatus()">添加</button>
+        </div>
+        <div id="custom-status-list" style="display:flex;flex-wrap:wrap;gap:5px">
+          ${(store.settings.customStatus||[]).map(s=>`<span class="tchip" style="cursor:default">${eh(s.label)} <span onclick="removeCustomStatus('${esc(s.id)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="stg-sec">
+      <div class="stg-tt">🏷️ 自定义类型标签</div>
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:14px">
+        <p style="font-size:12.5px;color:var(--tx3);margin-bottom:10px">添加自定义类型标签（可加emoji前缀）</p>
+        <div style="display:flex;gap:7px;margin-bottom:10px">
+          <input class="fi" id="custom-tag-input" placeholder="🌟 特别推荐" style="margin:0">
           <button class="btn primary" onclick="addCustomTag()">添加</button>
         </div>
         <div id="custom-tags-list" style="display:flex;flex-wrap:wrap;gap:5px">
@@ -2050,6 +2582,7 @@ function renderSettings(){
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="openExportModal()">📤 导出 JSON</button>
         <button class="btn" onclick="triggerImport()">📥 导入 JSON</button>
+        <button class="btn" onclick="openFileManager()">📁 文件管理器</button>
         <button class="btn danger" onclick="clearAll()">🗑️ 清空数据</button>
       </div>
     </div>
@@ -2075,10 +2608,12 @@ function saveGhSettings(){
   const path=document.getElementById('gh-path')?.value?.trim()||'collection.json';
   const img=document.getElementById('gh-img')?.value?.trim()||'img';
   const wasConnected=isConnected();
+  const assets=document.getElementById('gh-assets')?.value?.trim()||'assets/doc';
   store.settings.githubToken=tk;
   store.settings.githubRepo=repo;
   store.settings.githubPath=path;
   store.settings.imgFolder=img;
+  store.settings.assetFolder=assets;
   save();refreshGhStatus();
   toast('GitHub 设置已保存','ok');
   if(!wasConnected && isConnected()) connectGithubWithLocalItems();
@@ -2101,6 +2636,90 @@ async function pullFromGh(){
   store.items=[...localOnly,...items.filter(r=>!localOnly.find(l=>l.id===r.id))];
   save();updateCounts();renderContent();
   toast(`已拉取 ${items.length} 条记录`,'ok');
+}
+
+// ---- CUSTOM CATEGORIES ----
+const BUILT_IN_CATS = Object.keys(CATS); // fixed at load time
+function renderCustomCatsList(){
+  return (store.settings.customCats||[]).map(c=>`
+    <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--bg3);border-radius:var(--rs);font-size:12.5px">
+      ${eh(c.icon)} ${eh(c.label)}
+      <span onclick="removeCustomCat('${esc(c.key)}')" style="cursor:pointer;color:var(--red);margin-left:4px">×</span>
+    </div>`).join('');
+}
+function addCustomCat(){
+  const key=(document.getElementById('custom-cat-key')?.value||'').trim().replace(/\s+/g,'_').toLowerCase();
+  const label=(document.getElementById('custom-cat-label')?.value||'').trim();
+  const icon=(document.getElementById('custom-cat-icon')?.value||'').trim()||'📁';
+  const type=document.getElementById('custom-cat-type')?.value||'media';
+  if(!key||!label){toast('请填写ID和名称','err');return;}
+  if(BUILT_IN_CATS.includes(key)||CATS[key]){toast('该ID已存在','err');return;}
+  if(!store.settings.customCats) store.settings.customCats=[];
+  if(store.settings.customCats.find(c=>c.key===key)){toast('该ID已存在','err');return;}
+  store.settings.customCats.push({key,label,icon,type});
+  // Inject into CATS
+  CATS[key]={label,icon,type};
+  // Add nav item
+  addCatNavItem(key,label,icon);
+  save();
+  document.getElementById('custom-cat-key').value='';
+  document.getElementById('custom-cat-label').value='';
+  document.getElementById('custom-cat-icon').value='';
+  const el=document.getElementById('custom-cats-list');
+  if(el) el.innerHTML=renderCustomCatsList();
+  toast(`已添加分类"${label}"`,'ok');
+}
+function removeCustomCat(key){
+  if(!confirm(`确认删除分类"${CATS[key]?.label||key}"？该分类下的记录不会被删除，但不再显示在分类中。`)) return;
+  store.settings.customCats=(store.settings.customCats||[]).filter(c=>c.key!==key);
+  delete CATS[key];
+  save();
+  renderSpaceNav();
+  // Remove nav item
+  const el=document.querySelector(`.nav-item[data-page="${key}"]`);
+  if(el) el.remove();
+  const el2=document.getElementById(`cnt-${key}`);
+  // Re-render sidebar nav section
+  renderSidebarCats();
+  const el3=document.getElementById('custom-cats-list');
+  if(el3) el3.innerHTML=renderCustomCatsList();
+  toast('分类已删除','ok');
+}
+function addCatNavItem(key,label,icon){
+  // Will be picked up by renderSidebarCats
+  renderSidebarCats();
+}
+function renderSidebarCats(){
+  // Re-render the category nav items dynamically
+  const nav=document.getElementById('sidebar-cats-nav');
+  if(!nav) return;
+  nav.innerHTML=Object.entries(CATS).map(([k,v])=>`
+    <button class="nav-item${page===k&&!currentSpace?' active':''}" data-page="${k}" onclick="navigateTo('${k}')">
+      <span class="ni">${v.icon}</span>${eh(v.label)}<span class="nc" id="cnt-${k}">${store.items.filter(i=>i.category===k).length}</span>
+    </button>`).join('');
+}
+
+// ---- CUSTOM COUNTRIES ----
+function addCustomCountry(){
+  const v=(document.getElementById('custom-country-input')?.value||'').trim();
+  if(!v){toast('请输入国别名称','err');return;}
+  if(!store.settings.customCountries) store.settings.customCountries=[];
+  if(store.settings.customCountries.includes(v)||COUNTRIES.includes(v)){toast('已存在','err');return;}
+  store.settings.customCountries.push(v);
+  save();
+  document.getElementById('custom-country-input').value='';
+  const el=document.getElementById('custom-countries-list');
+  if(el) el.innerHTML=(store.settings.customCountries||[]).map(t=>`<span class="tchip" style="cursor:default">${eh(t)} <span onclick="removeCustomCountry('${esc(t)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('');
+  toast(`已添加"${v}"`,'ok');
+}
+function removeCustomCountry(t){
+  store.settings.customCountries=(store.settings.customCountries||[]).filter(c=>c!==t);
+  save();
+  const el=document.getElementById('custom-countries-list');
+  if(el) el.innerHTML=(store.settings.customCountries||[]).map(t=>`<span class="tchip" style="cursor:default">${eh(t)} <span onclick="removeCustomCountry('${esc(t)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('');
+}
+function getAllCountries(){
+  return [...COUNTRIES,...(store.settings.customCountries||[])];
 }
 
 // ---- CUSTOM TAGS ----
@@ -2128,6 +2747,50 @@ function removeCustomTag(tag){
 // Get all type tags (built-in + custom)
 function getAllTypeTags(){
   return [...TYPE_TAGS,...(store.settings.customTags||[])];
+}
+
+// Get all countries (built-in + custom)
+function getAllCountries(){
+  return [...COUNTRIES,...(store.settings.customCountries||[])];
+}
+
+// Get all categories (built-in + user-added)
+function getAllCats(){
+  const custom = store.settings.customCats || {};
+  return {...CATS, ...custom};
+}
+
+// Get all status options (built-in + custom)
+function getAllStatusOpts(){
+  const custom = store.settings.customStatus || [];
+  return [...STATUS_OPTS, ...custom];
+}
+
+// ---- CUSTOM STATUS ----
+function addCustomStatus(){
+  const inp = document.getElementById('custom-status-label');
+  const label = inp?.value?.trim();
+  if(!label){toast('请输入状态名称','err');return;}
+  if(!store.settings.customStatus) store.settings.customStatus=[];
+  const id = 'custom_' + Date.now().toString(36);
+  store.settings.customStatus.push({id, label, cls:'unwatched'});
+  save();inp.value='';
+  const el=document.getElementById('custom-status-list');
+  if(el) el.innerHTML=(store.settings.customStatus||[]).map(s=>`<span class="tchip" style="cursor:default">${eh(s.label)} <span onclick="removeCustomStatus('${esc(s.id)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('');
+  toast(`已添加状态「${label}」`,'ok');
+}
+function removeCustomStatus(id){
+  store.settings.customStatus=(store.settings.customStatus||[]).filter(s=>s.id!==id);
+  save();
+  const el=document.getElementById('custom-status-list');
+  if(el) el.innerHTML=(store.settings.customStatus||[]).map(s=>`<span class="tchip" style="cursor:default">${eh(s.label)} <span onclick="removeCustomStatus('${esc(s.id)}')" style="cursor:pointer;opacity:.6">×</span></span>`).join('');
+  toast('状态已删除','ok');
+}
+
+// Merge custom status into STATUS_OPTS usage
+function getAllStatusOpts(){
+  const custom = (store.settings.customStatus||[]);
+  return [...STATUS_OPTS, ...custom];
 }
 
 function clearAll(){
@@ -2185,7 +2848,9 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-ovl').classList.remove('show');}
 
 function updateCounts(){
-  Object.keys(CATS).forEach(k=>{
+  // Update nav counts for all categories including custom ones
+  const allCatsForCounts = getAllCats();
+  Object.keys(allCatsForCounts).forEach(k=>{
     const el=document.getElementById(`cnt-${k}`);
     if(el) el.textContent=store.items.filter(i=>i.category===k).length;
   });
@@ -2213,12 +2878,62 @@ function toast(msg,type='ok'){
 // ============================================================
 // PWA
 // ============================================================
+// ---- SVG Logo (default, overridden by img/logo.ico if present) ----
+const DEFAULT_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#c8773a"/>
+  <rect x="100" y="150" width="90" height="230" rx="8" fill="#fff" opacity=".25"/>
+  <rect x="100" y="150" width="12" height="230" rx="4" fill="#fff" opacity=".4"/>
+  <rect x="210" y="120" width="100" height="260" rx="8" fill="#fff" opacity=".45"/>
+  <rect x="210" y="120" width="14" height="260" rx="4" fill="#fff" opacity=".65"/>
+  <rect x="325" y="140" width="90" height="240" rx="8" fill="#fff" opacity=".7"/>
+  <rect x="325" y="140" width="12" height="240" rx="4" fill="#fff"/>
+  <rect x="347" y="185" width="50" height="6" rx="3" fill="#c8773a" opacity=".5"/>
+  <rect x="347" y="202" width="38" height="5" rx="3" fill="#c8773a" opacity=".35"/>
+  <text x="256" y="395" font-family="serif" font-size="68" font-weight="700" fill="#fff" opacity=".9" text-anchor="middle">藏</text>
+</svg>`;
+
+function getSVGLogoInline(){
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32">
+    <rect width="512" height="512" rx="100" fill="#c8773a"/>
+    <rect x="100" y="150" width="90" height="230" rx="8" fill="#fff" opacity=".25"/>
+    <rect x="210" y="120" width="100" height="260" rx="8" fill="#fff" opacity=".45"/>
+    <rect x="325" y="140" width="90" height="240" rx="8" fill="#fff" opacity=".7"/>
+    <rect x="325" y="140" width="12" height="240" rx="4" fill="#fff"/>
+    <text x="256" y="395" font-family="serif" font-size="68" font-weight="700" fill="#fff" opacity=".9" text-anchor="middle">藏</text>
+  </svg>`;
+}
+
+function getLogoDataUrl(){
+  return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(DEFAULT_LOGO_SVG)));
+}
+// Aliases for compatibility
+const getSVGLogoDataURL = getLogoDataUrl;
+function getSVGLogoInline(){ return DEFAULT_LOGO_SVG; }
+const initFavicon = applyLogoToDOM;
+
+function applyLogoToDOM(){
+  const logoUrl=getLogoDataUrl();
+  const fav=document.getElementById('site-favicon');
+  const atIcon=document.getElementById('apple-touch-icon');
+  const logoImg=document.getElementById('site-logo-img');
+  const test=new Image();
+  test.onload=()=>{};
+  test.onerror=()=>{
+    if(fav) fav.href=logoUrl;
+    if(atIcon) atIcon.href=logoUrl;
+    if(logoImg) logoImg.src=logoUrl;
+  };
+  test.src='img/logo.ico';
+}
+
 function setupPWA(){
-  const manifest={name:'藏·索引',short_name:'藏索引',start_url:'.',display:'standalone',background_color:'#f6f3ee',theme_color:'#c8773a',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📚%3C/text%3E%3C/svg%3E",sizes:'192x192 512x512',type:'image/svg+xml'}]};
+  const logoUrl=getLogoDataUrl();
+  const manifest={name:SITE_CONFIG.title||'藏·索引',short_name:'藏索引',start_url:'.',display:'standalone',background_color:'#f6f3ee',theme_color:'#c8773a',icons:[{src:logoUrl,sizes:'192x192',type:'image/svg+xml'},{src:logoUrl,sizes:'512x512',type:'image/svg+xml'},{src:'img/logo.ico',sizes:'any',type:'image/x-icon'}]};
   try{
     const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
     document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
   }catch(e){}
+  applyLogoToDOM();
   if('serviceWorker' in navigator){
     try{
       const sw=`self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));`;
