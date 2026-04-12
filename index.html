@@ -167,8 +167,8 @@ input,select,textarea{font-family:var(--fn)}
 .list-card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);display:flex;gap:13px;padding:12px;cursor:pointer;transition:all var(--tr);position:relative;align-items:flex-start}
 .list-card:hover{box-shadow:var(--sh);transform:translateX(3px)}
 .list-card.sel{border-color:var(--ac);box-shadow:0 0 0 2px var(--acl)}
-.l-cov{width:62px;aspect-ratio:2/3;border-radius:var(--rs);background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:.4}
-.l-cov img{width:100%;height:100%;object-fit:cover;opacity:1}
+.l-cov{width:62px;aspect-ratio:2/3;border-radius:var(--rs);background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.l-cov img{width:100%;height:100%;object-fit:cover;}
 .l-info{flex:1;min-width:0}
 .l-title{font-size:14px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.4}
 .l-meta{font-size:11.5px;color:var(--tx3);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:5px}
@@ -180,8 +180,8 @@ input,select,textarea{font-family:var(--fn)}
 .cmp-card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);display:flex;gap:10px;padding:9px;cursor:pointer;transition:all var(--tr);align-items:center;position:relative}
 .cmp-card:hover{box-shadow:var(--sh);border-color:var(--ac)}
 .cmp-card.sel{border-color:var(--ac);box-shadow:0 0 0 2px var(--acl)}
-.c-cov{width:44px;aspect-ratio:2/3;border-radius:6px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;opacity:.4}
-.c-cov img{width:100%;height:100%;object-fit:cover;opacity:1}
+.c-cov{width:44px;aspect-ratio:2/3;border-radius:6px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.c-cov img{width:100%;height:100%;object-fit:cover;}
 .c-info{flex:1;min-width:0}
 .c-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .c-meta{font-size:11px;color:var(--tx3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -203,6 +203,8 @@ input,select,textarea{font-family:var(--fn)}
 
 /* ── TAG CHIP ───────────────────────────────────────── */
 .tchip{font-size:11px;padding:2px 7px;border-radius:9px;background:var(--bg3);color:var(--tx2);border:none;transition:all var(--tr);display:inline-flex;align-items:center;gap:3px}
+/* Cover placeholder icon opacity (NOT applied to img) */
+.l-cov>.nc-icon,.c-cov>.nc-icon,.det-cover>.nc-icon,.g-cov>.nc-icon{opacity:.38}
 .tchip:hover{background:var(--acl);color:var(--ac);cursor:pointer}
 
 /* ── SELECT BAR ─────────────────────────────────────── */
@@ -316,8 +318,8 @@ select.fi{cursor:pointer}
 /* ── DETAIL MODAL ───────────────────────────────────── */
 .det-layout{display:flex;gap:22px}
 .det-left{flex-shrink:0;display:flex;flex-direction:column;gap:10px}
-.det-cover{width:120px;aspect-ratio:2/3;border-radius:var(--r);overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:36px;opacity:.4}
-.det-cover img{width:100%;height:100%;object-fit:cover;opacity:1}
+.det-cover{width:120px;aspect-ratio:2/3;border-radius:var(--r);overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:36px;}
+.det-cover img{width:100%;height:100%;object-fit:cover;}
 .det-right{flex:1;min-width:0}
 .det-title{font-family:var(--fs);font-size:20px;font-weight:700;margin-bottom:8px;line-height:1.3}
 .det-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
@@ -346,8 +348,8 @@ select.fi{cursor:pointer}
 .det-ep-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:12px;transition:all var(--tr)}
 .det-ep-card:hover{border-color:var(--ac);box-shadow:var(--sh)}
 .det-ep-head{display:flex;gap:10px;margin-bottom:8px}
-.det-ep-cov{width:46px;aspect-ratio:2/3;border-radius:6px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.4}
-.det-ep-cov img{width:100%;height:100%;object-fit:cover;opacity:1}
+.det-ep-cov{width:46px;aspect-ratio:2/3;border-radius:6px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.det-ep-cov img{width:100%;height:100%;object-fit:cover;}
 .det-ep-info{flex:1;min-width:0}
 .det-ep-title{font-size:13px;font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .det-ep-sub{font-size:11px;color:var(--tx3);margin-bottom:5px}
@@ -526,7 +528,10 @@ select.fi{cursor:pointer}
     <button class="sbf-btn" onclick="openExportModal()">📤 导出数据</button>
     <button class="sbf-btn" onclick="triggerImport()">📥 导入数据</button>
     <button class="sbf-btn" onclick="openFileManager()">📁 文件管理</button>
+    <button class="sbf-btn" onclick="openExportSettingsModal()">⚙️ 导出设置</button>
+    <button class="sbf-btn" onclick="document.getElementById('import-settings-file').click()">📋 导入设置</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImportFile(event)">
+    <input type="file" id="import-settings-file" accept=".json" style="display:none" onchange="handleImportSettings(event)">
   </div>
 </aside>
 <div class="sb-ovl" id="sb-ovl" onclick="closeSidebar()"></div>
@@ -796,6 +801,53 @@ function isReadonly(item){
   return false;
 }
 
+// Move or copy a space item to the main store
+function copyFromSpace(itemId, move=false){
+  const sp=store.spaces.find(s=>s.id===curSpace);
+  if(!sp)return;
+  const item=sp.items.find(i=>i.id===itemId);
+  if(!item)return;
+  // Determine target category
+  const catOpts=Object.entries(getAllCats()).map(([k,v])=>`<option value="${k}"${k===item.category?' selected':''}>${v.icon} ${v.label}</option>`).join('');
+  const action=move?'移动':'复制';
+  setM(`<div class="moverlay" id="sp-copy-m" onclick="closeM('sp-copy-m')">
+    <div class="modal" style="max-width:340px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">${action}到我的收藏</div><button class="mclose" onclick="closeM('sp-copy-m')">×</button></div>
+      <div class="mbody">
+        <div class="fg"><div class="fl"><span class="fl-label">目标分类</span></div>
+          <select class="fi" id="sp-copy-cat">${catOpts}</select>
+        </div>
+        ${move?`<div style="font-size:12px;color:var(--tx3);background:var(--ambd);border-radius:var(--rs);padding:8px 10px;border:1px solid var(--amber)">
+          ⚠️ 移动后该条目将从空间「${eh(sp.name)}」中删除
+        </div>`:`<div style="font-size:12px;color:var(--tx3)">空间「${eh(sp.name)}」将保留该条目</div>`}
+      </div>
+      <div class="mfoot">
+        <button class="btn" onclick="closeM('sp-copy-m')">取消</button>
+        <button class="btn p" onclick="confirmCopyFromSpace('${itemId}',${move})">确认${action}</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+async function confirmCopyFromSpace(itemId, move){
+  const sp=store.spaces.find(s=>s.id===curSpace);
+  if(!sp)return;
+  const item=sp.items.find(i=>i.id===itemId);
+  if(!item)return;
+  const cat=$('sp-copy-cat')?.value;
+  if(!cat)return;
+  // Add to main store with new id to avoid conflicts
+  const newItem={...item, category:cat, id:uid(), local:!isConn(), createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()};
+  store.items.unshift(newItem);
+  if(move){
+    sp.items=sp.items.filter(i=>i.id!==itemId);
+  }
+  save();updateCounts();closeM('sp-copy-m');closeM('det');
+  renderSpaceNav();renderContent();
+  toast(move?`已移动到 ${getAllCats()[cat]?.label}`:`已复制到 ${getAllCats()[cat]?.label}`,'ok');
+  if(isConn()&&store.settings.autoSync)await syncToGH(true);
+}
+
 // ═══ FILTER BAR ═══════════════════════════════════════════════════
 function renderFilterBar(){
   const all=getItems();
@@ -1025,6 +1077,10 @@ function openDetail(itemId){
         </div>
       </div>
       <div class="mfoot">
+        ${curSpace?`
+          <button class="btn b" onclick="copyFromSpace('${itemId}',false)" style="font-size:12px">📋 复制到我的收藏</button>
+          <button class="btn" onclick="copyFromSpace('${itemId}',true)" style="font-size:12px">✂️ 移动到我的收藏</button>
+        `:''}
         ${!ro?`<button class="btn d" onclick="deleteItem('${itemId}')">🗑️ 删除</button>
                <button class="btn" onclick="closeM('det');openAddModal('${itemId}')">✏️ 编辑</button>`:''}
         <button class="btn" onclick="closeM('det')">关闭</button>
@@ -1044,16 +1100,19 @@ function renderDetailEps(item){
           <a href="${ea(l.url)}" target="_blank" rel="noopener" class="det-ep-link${l.type==='file'?' file':''}">
             ${l.type==='file'?'📎':'🔗'} ${eh(l.name||'链接')}
           </a>`).join('');
+        const epNotesH=ep.notes?marked.parse(ep.notes):'';
         return`<div class="det-ep-card">
           <div class="det-ep-head">
             <div class="det-ep-cov">${ep.cover?`<img src="${ea(ep.cover)}" alt="" loading="lazy" onerror="this.style.display='none'">`:'🎬'}</div>
             <div class="det-ep-info">
               <div class="det-ep-title">${eh(ep.title||'无标题')}</div>
               <div class="det-ep-sub">${[ep.type,ep.year].filter(Boolean).map(eh).join(' · ')}</div>
+              ${ep.rating?`<div style="margin:3px 0">${miniStars(ep.rating)}</div>`:''}
               ${epLinks?`<div class="det-ep-links">${epLinks}</div>`:''}
             </div>
           </div>
-          ${ep.desc?`<div style="font-size:12px;color:var(--tx2);line-height:1.6;padding-top:6px;border-top:1px solid var(--bd)">${eh(ep.desc)}</div>`:''}
+          ${ep.desc?`<div style="font-size:12px;color:var(--tx2);line-height:1.6;padding:6px 0;border-top:1px solid var(--bd)">${eh(ep.desc)}</div>`:''}
+          ${epNotesH?`<div class="mdc" style="font-size:12px;padding-top:5px;border-top:1px solid var(--bd)">${epNotesH}</div>`:''}
         </div>`;
       }).join('')}
     </div>
@@ -1424,7 +1483,7 @@ function selectExFile(prefix,i,url,fn){
 const EP_TYPES=['TV','剧场版','OVA','OVD','特别篇','番外','续集','前传','衍生','其他'];
 
 function addEp(){
-  _eps.push({id:uid(),title:'',type:'TV',year:'',cover:'',links:[],desc:''});
+  _eps.push({id:uid(),title:'',type:'TV',year:'',cover:'',links:[],desc:'',notes:'',rating:0});
   rerenderEps();
 }
 function rmEp(i){
@@ -1437,6 +1496,42 @@ function rmEp(i){
   _eps.splice(i,1);rerenderEps();
 }
 function rerenderEps(){const el=$('eps-list');if(el)el.innerHTML=renderEpEditors();}
+function renderEpRatingHTML(r,i){
+  let h='';
+  for(let n=1;n<=5;n++){
+    const w=r>=n?'100%':r>=n-.5?'50%':'0%';
+    h+=`<span class="star-w" style="width:18px;height:18px;font-size:17px"
+      onmousemove="hoverEpStar(event,this,${i},${n})"
+      onmouseleave="unhoverEpStars(${i})"
+      onclick="clickEpStar(event,this,${i},${n})">
+      <span class="sbg">★</span><span class="sfill" style="width:${w}">★</span></span>`;
+  }
+  return h+`<span class="slbl" id="ep-slbl-${i}" style="font-size:11px">${r?r+' 分':'未评分'}</span>`;
+}
+function hoverEpStar(e,el,i,n){
+  const rect=el.getBoundingClientRect();
+  const v=e.clientX<rect.left+rect.width/2?n-.5:n;
+  const container=el.closest('.ep-stars');
+  if(container)container.querySelectorAll('.sfill').forEach((sf,j)=>sf.style.width=v>=(j+1)?'100%':v>=(j+.5)?'50%':'0%');
+  const lbl=$(`ep-slbl-${i}`);if(lbl)lbl.textContent=v+' 分';
+}
+function unhoverEpStars(i){
+  const r=_eps[i]?.rating||0;
+  const container=document.querySelector(`#ep-editor-${i} .ep-stars`);
+  if(container)container.querySelectorAll('.sfill').forEach((sf,j)=>sf.style.width=r>=(j+1)?'100%':r>=(j+.5)?'50%':'0%');
+  const lbl=$(`ep-slbl-${i}`);if(lbl)lbl.textContent=r?r+' 分':'未评分';
+}
+function clickEpStar(e,el,i,n){
+  const rect=el.getBoundingClientRect();
+  const v=e.clientX<rect.left+rect.width/2?n-.5:n;
+  if(!_eps[i])return;
+  _eps[i].rating=_eps[i].rating===v?0:v;
+  // Re-render just the rating stars for this episode
+  const starsEl=document.querySelector(`#ep-editor-${i} .ep-stars`);
+  if(starsEl)starsEl.innerHTML=renderEpRatingHTML(_eps[i].rating,i);
+  const lbl=$(`ep-slbl-${i}`);if(lbl)lbl.textContent=_eps[i].rating?_eps[i].rating+' 分':'未评分';
+}
+
 function renderEpEditors(){
   if(!_eps.length)return`<div style="font-size:12.5px;color:var(--tx3);text-align:center;padding:14px;background:var(--bg2);border-radius:var(--rs);border:1px dashed var(--bd)">暂无关联剧集，点击「添加剧集」按钮新建</div>`;
   return _eps.map((ep,i)=>`
@@ -1469,11 +1564,22 @@ function renderEpEditors(){
             oninput="_eps[${i}].desc=this.value" style="font-size:12.5px">${eh(ep.desc||'')}</textarea>
         </div>
       </div>
+      <!-- 评分 -->
+      <div style="margin-top:8px;display:flex;align-items:center;gap:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em">评分</div>
+        <div class="stars ep-stars" style="gap:2px">${renderEpRatingHTML(ep.rating||0,i)}</div>
+      </div>
       <!-- 链接 -->
       <div style="margin-top:8px">
         <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">观看/下载地址</div>
         <div class="ll" id="ep-${i}-links">${renderLinkRows(ep.links||[],'ep-'+i)}</div>
         <button class="add-link-btn" onclick="addEpLink(${i})">＋ 添加链接</button>
+      </div>
+      <!-- 心得 -->
+      <div style="margin-top:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px">心得 <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx3)">（可选，支持 Markdown）</span></div>
+        <textarea class="fi" placeholder="观后感/备注…" rows="2"
+          oninput="_eps[${i}].notes=this.value" style="font-size:12.5px">${eh(ep.notes||'')}</textarea>
       </div>
     </div>`).join('');
 }
@@ -1539,6 +1645,8 @@ async function saveItem(){
       year:ep.year,
       cover:ep.cover,
       desc:ep.desc,
+      notes:ep.notes||'',
+      rating:ep.rating||0,
       links:(ep.links||[]).filter(l=>l.url).map(l=>({name:l.name,url:l.url,type:l.type||'link',filename:l.filename}))
     })).filter(ep=>ep.title),
     createdAt:editId?(store.items.find(i=>i.id===editId)?.createdAt||new Date().toISOString()):new Date().toISOString(),
@@ -1715,8 +1823,13 @@ async function syncToGH(silent=false){
       method:'PUT',headers:{Authorization:`Bearer ${tk}`,Accept:'application/vnd.github+json','Content-Type':'application/json'},
       body:JSON.stringify({message:`Update ${new Date().toISOString()}`,content,...(sha?{sha}:{})})
     });
-    if(pr.ok){if(dot)dot.className='gh-dot ok';if(!silent)toast('已同步到 GitHub ✅','ok');return true;}
-    else{
+    if(pr.ok){
+      if(dot)dot.className='gh-dot ok';
+      if(!silent)toast('已同步到 GitHub ✅','ok');
+      // After successful push, re-render to reflect any changes
+      updateCounts();renderContent();
+      return true;
+    }else{
       const err=await pr.json();if(dot)dot.className='gh-dot err';
       const m=err.message||'';
       toast(m.includes('not accessible')?'推送失败：Token 权限不足，需开启 Contents 读写权限':`推送失败：${m}`,'err');
@@ -1770,16 +1883,22 @@ window._mergeUp=async function(){
   const r=window._ri||[];
   const m=[...r];
   store.items.filter(i=>i.local).forEach(li=>{if(!m.find(x=>x.id===li.id)){li.local=false;m.unshift(li);}});
-  store.items=m;save();updateCounts();closeM('conn-m');await syncToGH(false);renderContent();
+  store.items=m;save();updateCounts();closeM('conn-m');
+  renderSpaceNav();renderCustomCatNav();renderContent();
+  await syncToGH(false);
 };
 window._keepBoth=function(){
   const r=window._ri||[];const lo=store.items.filter(i=>i.local);
   store.items=[...lo,...r.filter(x=>!lo.find(l=>l.id===x.id))];
-  save();updateCounts();closeM('conn-m');renderContent();toast(`合并完成，共 ${store.items.length} 条`,'ok');
+  save();updateCounts();closeM('conn-m');
+  renderSpaceNav();renderCustomCatNav();renderContent();
+  toast(`合并完成，共 ${store.items.length} 条，页面已更新 ✅`,'ok');
 };
 window._expPull=function(){
   doExportItems(store.items);store.items=window._ri||[];
-  save();updateCounts();closeM('conn-m');renderContent();toast('已导出并加载 GitHub 数据','ok');
+  save();updateCounts();closeM('conn-m');
+  renderSpaceNav();renderCustomCatNav();renderContent();
+  toast('已导出并加载 GitHub 数据，页面已更新 ✅','ok');
 };
 
 // ═══ EXPORT / IMPORT ══════════════════════════════════════════════
@@ -1789,14 +1908,23 @@ function openExportModal(){
       <input type="checkbox" class="exp-cb" value="${k}" checked style="accent-color:var(--ac)">
       ${v.icon} ${v.label} (${store.items.filter(i=>i.category===k).length}项)</label>`).join('');
   setM(`<div class="moverlay" id="exp-m" onclick="closeM('exp-m')">
-    <div class="modal" style="max-width:360px" onclick="event.stopPropagation()">
+    <div class="modal" style="max-width:380px" onclick="event.stopPropagation()">
       <div class="mhd"><div class="mtt">📤 导出数据</div><button class="mclose" onclick="closeM('exp-m')">×</button></div>
       <div class="mbody">
-        <div class="fg"><div class="fl"><span class="fl-label">选择分类</span></div><div>${catOpts}</div></div>
-        <div class="fg"><div class="fl"><span class="fl-label">范围</span></div>
+        <div class="fg">
+          <div class="fl" style="justify-content:space-between">
+            <span class="fl-label">选择分类</span>
+            <span style="display:flex;gap:6px">
+              <button class="btn xs" onclick="document.querySelectorAll('.exp-cb').forEach(c=>c.checked=true)">全选</button>
+              <button class="btn xs" onclick="document.querySelectorAll('.exp-cb').forEach(c=>c.checked=false)">清除</button>
+            </span>
+          </div>
+          <div style="background:var(--bg2);border-radius:var(--rs);padding:8px 12px">${catOpts}</div>
+        </div>
+        <div class="fg"><div class="fl"><span class="fl-label">导出范围</span></div>
           <div style="display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--tx2)">
-            <label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="radio" name="erm" value="all" checked style="accent-color:var(--ac)"> 全部</label>
-            <label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="radio" name="erm" value="local" style="accent-color:var(--ac)"> 仅本地新增</label>
+            <label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="radio" name="erm" value="all" checked style="accent-color:var(--ac)"> 全部记录</label>
+            <label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="radio" name="erm" value="local" style="accent-color:var(--ac)"> 仅本地新增（未同步到 GitHub 的）</label>
           </div>
         </div>
       </div>
@@ -1844,12 +1972,19 @@ function openImportModal(items){
       <select class="vsel" id="imp-r-${c}">${opts}</select>
     </div>`;
   }).join('');
+  // Add select-all controls (injected via JS after modal renders)
   setM(`<div class="moverlay" id="imp-m" onclick="closeM('imp-m')">
     <div class="modal" style="max-width:480px" onclick="event.stopPropagation()">
       <div class="mhd"><div class="mtt">📥 导入 ${items.length} 条记录</div><button class="mclose" onclick="closeM('imp-m')">×</button></div>
       <div class="mbody">
-        <p style="font-size:12px;color:var(--tx3);margin-bottom:12px">选择导入分类及目标位置：</p>
-        <div style="margin-bottom:14px">${rows}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <p style="font-size:12px;color:var(--tx3)">选择导入分类及目标位置：</p>
+          <span style="display:flex;gap:5px">
+            <button class="btn xs" onclick="document.querySelectorAll('.imp-cb').forEach(c=>c.checked=true)">全选</button>
+            <button class="btn xs" onclick="document.querySelectorAll('.imp-cb').forEach(c=>c.checked=false)">清除</button>
+          </span>
+        </div>
+        <div style="margin-bottom:14px;background:var(--bg2);border-radius:var(--rs);padding:8px 12px">${rows}</div>
         <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--tx2)">
           <label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="radio" name="ipm" value="merge" checked style="accent-color:var(--ac)"> 合并（保留现有，跳过重复ID）</label>
           <label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="radio" name="ipm" value="overwrite" style="accent-color:var(--ac)"> 覆盖（同ID以导入为准）</label>
@@ -1901,7 +2036,7 @@ function renderSpaceNav(){
         <span class="ni">📦</span>${eh(sp.name)}<span class="nc">${sp.items.length}</span>
       </button>`).join('');
 }
-function openSpace(spId){const sp=store.spaces.find(s=>s.id===spId);if(!sp)return;curSpace=spId;curPage='books';navigateTo('books',spId);renderSpaceNav();}
+function openSpace(spId){const sp=store.spaces.find(s=>s.id===spId);if(!sp)return;curSpace=spId;curPage='__all__';navigateTo('__all__',spId);renderSpaceNav();}
 function exitSpace(){curSpace=null;navigateTo('books');}
 function deleteSpace(spId){
   if(!confirm('确认删除此空间？'))return;
@@ -1910,9 +2045,14 @@ function deleteSpace(spId){
 function renderSpacePage(){
   const sp=store.spaces.find(s=>s.id===curSpace);
   if(!sp)return`<div class="empty"><div class="empty-i">❌</div><div class="empty-t">空间不存在</div></div>`;
-  const catNav=Object.entries(getAllCats()).map(([k,v])=>
-    `<button class="ftag${curPage===k?' on':''}" onclick="spaceCat('${k}')">${v.icon} ${v.label} (${sp.items.filter(i=>i.category===k).length})</button>`).join('');
-  const items=sortItems(sp.items.filter(i=>i.category===curPage));
+  // "__all__" is the special "all items" tab
+  const isAll=curPage==='__all__';
+  const catNav=`<button class="ftag${isAll?' on':''}" onclick="spaceCat('__all__')">📋 全部 (${sp.items.length})</button>`+
+    Object.entries(getAllCats()).map(([k,v])=>{
+      const cnt=sp.items.filter(i=>i.category===k).length;
+      return cnt>0?`<button class="ftag${curPage===k&&!isAll?' on':''}" onclick="spaceCat('${k}')">${v.icon} ${v.label} (${cnt})</button>`:'';
+    }).join('');
+  const items=isAll?sortItems(sp.items):sortItems(sp.items.filter(i=>i.category===curPage));
   return`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
     <span style="font-size:13px;color:var(--tx3)">📦 ${eh(sp.name)}</span>
     <button class="btn sm d" onclick="deleteSpace('${sp.id}')">🗑️ 删除空间</button>
@@ -2047,6 +2187,35 @@ function showQR(url,name){
 }
 
 // ═══ STATS ════════════════════════════════════════════════════════
+// Stats page has its own view state so it doesn't conflict with collection views
+let statsView = 'list';
+
+function setStatsView(v){
+  statsView=v;
+  // Only re-render the recent items section, not the whole stats page
+  const rEl=$('stats-recent-list');
+  const rCtrl=$('stats-view-ctrl');
+  const all=store.items;
+  const recent=[...all].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
+  if(rCtrl) rCtrl.innerHTML=renderStatsViewCtrl(recent.length);
+  if(rEl){
+    const sv=curView; curView=statsView;
+    rEl.innerHTML=recent.length?renderItems(recent):renderEmpty();
+    curView=sv;
+  }
+}
+
+function renderStatsViewCtrl(cnt){
+  return `<div class="vctrl" id="stats-view-ctrl">
+    <span class="vcnt">${cnt} 项</span>
+    <div class="vbtns">
+      <button class="vbtn${statsView==='grid'?' on':''}" onclick="setStatsView('grid')" title="卡片">▦</button>
+      <button class="vbtn${statsView==='list'?' on':''}" onclick="setStatsView('list')" title="列表">≡</button>
+      <button class="vbtn${statsView==='compact'?' on':''}" onclick="setStatsView('compact')" title="紧凑">⊟</button>
+    </div>
+  </div>`;
+}
+
 function renderStats(){
   const all=store.items;
   const total=all.length;
@@ -2063,7 +2232,10 @@ function renderStats(){
   const tagCount={};all.forEach(i=>(i.tags||[]).forEach(t=>{tagCount[t]=(tagCount[t]||0)+1;}));
   const topTags=Object.entries(tagCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const recent=[...all].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
-  const sv=curView;curView='list';const recentH=recent.length?renderItems(recent):renderEmpty();curView=sv;
+  // Render recent items using statsView (independent from main curView)
+  const sv=curView; curView=statsView;
+  const recentH=recent.length?renderItems(recent):renderEmpty();
+  curView=sv;
   return`<div>
     <div style="font-family:var(--fs);font-size:19px;font-weight:600;margin-bottom:13px">📊 统计概览</div>
     <div class="stats-grid">
@@ -2079,7 +2251,8 @@ function renderStats(){
         ${topTags.map(([t,n],i)=>`<span class="tchip">${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${eh(t)} <span style="font-family:var(--fm);color:var(--ac)">${n}</span></span>`).join('')}
       </div></div>`:''}
     <div style="font-family:var(--fs);font-size:16px;font-weight:600;margin-bottom:11px">🕐 最近添加</div>
-    ${renderViewCtrl(recent.length)}${recentH}
+    <div id="stats-view-ctrl">${renderStatsViewCtrl(recent.length)}</div>
+    <div id="stats-recent-list">${recentH}</div>
   </div>`;
 }
 
@@ -2246,8 +2419,198 @@ async function doPull(){
   const lo=store.items.filter(i=>i.local);
   if(lo.length&&!confirm(`你有 ${lo.length} 条本地记录，拉取后将合并（本地记录保留）。确认？`))return;
   store.items=[...lo,...items.filter(r=>!lo.find(l=>l.id===r.id))];
-  save();updateCounts();renderContent();toast(`已拉取 ${items.length} 条记录`,'ok');
+  save();
+  updateCounts();
+  renderSpaceNav();
+  renderCustomCatNav();
+  renderContent();
+  toast(`已拉取 ${items.length} 条记录，页面已更新 ✅`,'ok');
 }
+// ═══ SETTINGS EXPORT / IMPORT ════════════════════════════════════
+
+function openExportSettingsModal(){
+  setM(`<div class="moverlay" id="exps-m" onclick="closeM('exps-m')">
+    <div class="modal" style="max-width:400px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">⚙️ 导出设置</div><button class="mclose" onclick="closeM('exps-m')">×</button></div>
+      <div class="mbody">
+        <p style="font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:14px">
+          导出的设置文件可分享给他人，用于快速配置相同的分类、标签和状态选项。
+        </p>
+        <div class="fg">
+          <div class="fl" style="justify-content:space-between">
+            <span class="fl-label">选择导出内容</span>
+            <span style="display:flex;gap:5px">
+              <button class="btn xs" onclick="document.querySelectorAll('.exps-cb').forEach(c=>c.checked=true)">全选</button>
+              <button class="btn xs" onclick="document.querySelectorAll('.exps-cb').forEach(c=>c.checked=false)">清除</button>
+            </span>
+          </div>
+          <div style="background:var(--bg2);border-radius:var(--rs);padding:10px 12px;display:flex;flex-direction:column;gap:7px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" class="exps-cb" value="customCats" checked style="accent-color:var(--ac)">
+              📂 自定义分类 (${Object.keys(store.settings.customCats||{}).length} 项)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" class="exps-cb" value="customStatus" checked style="accent-color:var(--ac)">
+              🔖 自定义状态 (${(store.settings.customStatus||[]).length} 项)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" class="exps-cb" value="customCountries" checked style="accent-color:var(--ac)">
+              🌍 自定义国别 (${(store.settings.customCountries||[]).length} 项)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" class="exps-cb" value="customTags" checked style="accent-color:var(--ac)">
+              🏷️ 自定义类型标签 (${(store.settings.customTags||[]).length} 项)
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="mfoot">
+        <button class="btn" onclick="closeM('exps-m')">取消</button>
+        <button class="btn p" onclick="confirmExportSettings()">导出设置 JSON</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+function confirmExportSettings(){
+  const selected=[...document.querySelectorAll('.exps-cb:checked')].map(c=>c.value);
+  const settings={};
+  selected.forEach(k=>{if(store.settings[k]!==undefined)settings[k]=store.settings[k];});
+  const blob=new Blob([JSON.stringify({type:'coll_settings',version:'6',settings,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`coll_settings_${Date.now()}.json`;a.click();
+  URL.revokeObjectURL(url);
+  closeM('exps-m');toast('设置已导出','ok');
+}
+
+function handleImportSettings(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.type!=='coll_settings'||!d.settings){toast('不是有效的设置文件','err');return;}
+      openImportSettingsModal(d.settings);
+    }catch{toast('无法解析文件','err');}
+  };
+  r.readAsText(f);e.target.value='';
+}
+
+function openImportSettingsModal(settings){
+  window._importSettings=settings;
+  const keys=Object.keys(settings);
+  const keyLabels={customCats:'📂 自定义分类',customStatus:'🔖 自定义状态',customCountries:'🌍 自定义国别',customTags:'🏷️ 类型标签'};
+  const keyCounts={
+    customCats:Object.keys(settings.customCats||{}).length,
+    customStatus:(settings.customStatus||[]).length,
+    customCountries:(settings.customCountries||[]).length,
+    customTags:(settings.customTags||[]).length,
+  };
+  const myKeyCounts={
+    customCats:Object.keys(store.settings.customCats||{}).length,
+    customStatus:(store.settings.customStatus||[]).length,
+    customCountries:(store.settings.customCountries||[]).length,
+    customTags:(store.settings.customTags||[]).length,
+  };
+  const rows=keys.filter(k=>keyCounts[k]!==undefined).map(k=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bd);font-size:13px">
+      <span>${keyLabels[k]||k}</span>
+      <span style="color:var(--tx3);font-size:12px">导入 ${keyCounts[k]} 项（我有 ${myKeyCounts[k]} 项）</span>
+    </div>`).join('');
+  setM(`<div class="moverlay" id="imps-m" onclick="closeM('imps-m')">
+    <div class="modal" style="max-width:440px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">📋 导入设置</div><button class="mclose" onclick="closeM('imps-m')">×</button></div>
+      <div class="mbody">
+        <div style="background:var(--bg2);border-radius:var(--rs);padding:10px 12px;margin-bottom:14px">${rows}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--tx2)">
+          <div style="font-weight:600;margin-bottom:3px">导入方式：</div>
+          <label style="cursor:pointer;display:flex;align-items:flex-start;gap:8px">
+            <input type="radio" name="spm" value="merge" checked style="accent-color:var(--ac);margin-top:2px">
+            <span><strong>合并导入</strong>（推荐）— 只导入我没有的设置项，不覆盖已有内容</span>
+          </label>
+          <label style="cursor:pointer;display:flex;align-items:flex-start;gap:8px">
+            <input type="radio" name="spm" value="overwrite" style="accent-color:var(--ac);margin-top:2px">
+            <span><strong>覆盖导入</strong> — 完全替换对应类别的设置（原有自定义内容将丢失）</span>
+          </label>
+          <label style="cursor:pointer;display:flex;align-items:flex-start;gap:8px">
+            <input type="radio" name="spm" value="overwrite_all" style="accent-color:var(--ac);margin-top:2px">
+            <span><strong>完全覆盖</strong> — 移除所有自定义设置，完整导入对方配置</span>
+          </label>
+        </div>
+        <div id="spm-warn-all" style="display:none;margin-top:10px;background:var(--redd);border:1px solid var(--red);border-radius:var(--rs);padding:10px;font-size:12.5px;color:var(--red)">
+          ⚠️ 此操作将清除你的所有自定义分类、状态、国别、标签。原有使用这些设置的记录中，对应字段将显示为原始值（数据不丢失，但可能需要手动重新分类）。
+          <div style="margin-top:8px">
+            <label style="cursor:pointer;display:flex;align-items:center;gap:7px;font-size:12px">
+              <input type="checkbox" id="spm-clear-items" style="accent-color:var(--red)">
+              同时清除所有收藏记录（彻底还原为空白状态）
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="mfoot">
+        <button class="btn" onclick="closeM('imps-m')">取消</button>
+        <button class="btn p" onclick="confirmImportSettings()">确认导入</button>
+      </div>
+    </div>
+  </div>`);
+  // Show warning for overwrite_all
+  setTimeout(()=>{
+    document.querySelectorAll('input[name="spm"]').forEach(r=>{
+      r.onchange=function(){
+        const w=$('spm-warn-all');if(w)w.style.display=this.value==='overwrite_all'?'block':'none';
+      };
+    });
+  },50);
+}
+
+function confirmImportSettings(){
+  const settings=window._importSettings;if(!settings)return;
+  const mode=document.querySelector('input[name="spm"]:checked')?.value||'merge';
+  if(mode==='overwrite_all'){
+    const clearItems=$('spm-clear-items')?.checked;
+    // Clear all custom settings
+    store.settings.customCats={};
+    store.settings.customStatus=[];
+    store.settings.customCountries=[];
+    store.settings.customTags=[];
+    if(clearItems){store.items=[];store.spaces=[];}
+    // Import all from settings file
+    Object.keys(settings).forEach(k=>{if(store.settings[k]!==undefined)store.settings[k]=settings[k];});
+    save();updateCounts();renderContent();renderSpaceNav();renderCustomCatNav();
+    toast(`设置已完全覆盖${clearItems?'（记录已清空）':''}，请刷新验证`,'ok');
+  } else if(mode==='overwrite'){
+    // Overwrite each key entirely
+    Object.keys(settings).forEach(k=>{if(store.settings[k]!==undefined)store.settings[k]=settings[k];});
+    save();renderContent();renderCustomCatNav();
+    toast('设置已覆盖导入','ok');
+  } else {
+    // Merge: only add items that don't exist
+    let added=0;
+    // customCats: add keys that don't exist
+    const myCats=store.settings.customCats||{};
+    Object.entries(settings.customCats||{}).forEach(([k,v])=>{if(!CATS[k]&&!myCats[k]){myCats[k]=v;added++;}});
+    store.settings.customCats=myCats;
+    // customStatus: add ids that don't exist
+    const mySt=store.settings.customStatus||[];
+    const myStIds=new Set([...STATUS_BASE.map(s=>s.id),...mySt.map(s=>s.id)]);
+    (settings.customStatus||[]).forEach(s=>{if(!myStIds.has(s.id)){mySt.push(s);added++;}});
+    store.settings.customStatus=mySt;
+    // customCountries: add strings that don't exist
+    const myCtry=store.settings.customCountries||[];
+    const myCtrySet=new Set([...COUNTRIES_BASE,...myCtry]);
+    (settings.customCountries||[]).forEach(t=>{if(!myCtrySet.has(t)){myCtry.push(t);added++;}});
+    store.settings.customCountries=myCtry;
+    // customTags: add strings that don't exist
+    const myTags=store.settings.customTags||[];
+    const myTagSet=new Set([...TYPE_TAGS_BASE,...myTags]);
+    (settings.customTags||[]).forEach(t=>{if(!myTagSet.has(t)){myTags.push(t);added++;}});
+    store.settings.customTags=myTags;
+    save();renderContent();renderCustomCatNav();
+    toast(`合并导入完成，新增 ${added} 项设置`,'ok');
+  }
+  closeM('imps-m');
+}
+
 function clearAll(){
   if(!confirm('确认清空全部数据和空间？此操作不可恢复！'))return;
   store.items=[];store.spaces=[];save();updateCounts();renderContent();renderSpaceNav();renderCustomCatNav();toast('已清空','ok');
