@@ -1,0 +1,15 @@
+{
+  "name": "cang-suoyin",
+  "version": "1.0.0",
+  "description": "藏·索引 — 个人收藏管理平台（含账号系统）",
+  "private": true,
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "@vercel/kv": "^2.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  }
+}

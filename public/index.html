@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#c8773a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="藏·索引">
+<title>藏·索引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+/* ── DESIGN TOKENS ── */
+:root{
+  --bg:#f6f3ee;--bg2:#edeae3;--bg3:#e0ddd5;
+  --sur:#fff;--sur2:#f2efe8;
+  --bd:#d3cec4;--bd2:#c4bfb5;
+  --tx:#1a1714;--tx2:#57524d;--tx3:#8c8680;
+  --ac:#c8773a;--ac2:#a0601e;--acl:#f5e4d2;--acl2:#fdf0e5;
+  --red:#ef4444;--redd:#fee2e2;
+  --green:#22c55e;--greend:#dcfce7;
+  --amber:#f59e0b;--ambd:#fef3c7;
+  --blue:#3b82f6;--blued:#dbeafe;
+  --purple:#8b5cf6;--purpd:#ede9fe;
+  --sh:0 2px 10px rgba(0,0,0,.07);--shl:0 8px 32px rgba(0,0,0,.13);
+  --r:12px;--rs:8px;--rl:20px;
+  --tr:.2s cubic-bezier(.4,0,.2,1);
+  --fs:'Noto Serif SC',serif;--fn:'Noto Sans SC',sans-serif;--fm:'JetBrains Mono',monospace;
+  --sw:238px;
+}
+[data-dark]{
+  --bg:#0d0c0b;--bg2:#141312;--bg3:#1c1b19;--sur:#181715;--sur2:#1f1e1c;
+  --bd:#2a2825;--bd2:#363330;--tx:#eee9e2;--tx2:#9a9490;--tx3:#6a6460;
+  --ac:#e89248;--ac2:#c8721e;--acl:#251807;--acl2:#1e1408;
+  --redd:#3f1010;--greend:#0f2e18;--ambd:#2d1e04;--blued:#0d1f3e;--purpd:#1e1238;
+  --shl:0 8px 32px rgba(0,0,0,.55);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;line-height:1.5;transition:background var(--tr),color var(--tr)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+button{font-family:var(--fn);cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:inherit;text-decoration:none}img{display:block;max-width:100%}
+input,select,textarea{font-family:var(--fn)}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid var(--bd);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;transition:transform var(--tr)}
+.sb-logo{padding:16px 14px 12px;border-bottom:1px solid var(--bd)}
+.sb-logo-row{display:flex;align-items:center;gap:9px}
+.sb-logo-icon{width:36px;height:36px;border-radius:9px;flex-shrink:0;overflow:hidden}
+.site-title{font-family:var(--fs);font-size:16px;font-weight:700;color:var(--ac);letter-spacing:.04em}
+.site-ver{font-family:var(--fm);font-size:9px;color:var(--tx3);padding:1px 4px;border:1px solid var(--bd);border-radius:3px;display:inline-block;margin-top:1px}
+.sb-logo-sub{font-size:9.5px;color:var(--tx3);margin-top:4px;font-family:var(--fm);letter-spacing:.06em}
+
+/* User badge in sidebar */
+.sb-user{display:flex;align-items:center;gap:8px;margin:9px 12px 0;padding:8px 10px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--sur);cursor:pointer;transition:all var(--tr);min-width:0}
+.sb-user:hover{border-color:var(--ac)}
+.sb-user-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-user-av.role-admin{background:var(--amber)}
+.sb-user-av.role-user{background:var(--ac)}
+.sb-user-av.role-guest{background:var(--tx3)}
+.sb-user-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.sb-user-role{font-size:10px;color:var(--tx3);font-family:var(--fm);flex-shrink:0}
+
+.sb-nav{padding:8px 0;flex:1}
+.sb-sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--tx3);padding:8px 14px 3px}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:8px 14px;border:none;background:none;width:100%;text-align:left;font-size:13px;color:var(--tx2);cursor:pointer;position:relative;transition:background var(--tr),color var(--tr)}
+.nav-btn:hover{background:var(--bg3);color:var(--tx)}
+.nav-btn.active{background:var(--acl);color:var(--ac);font-weight:600}
+.nav-btn.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ac);border-radius:0 2px 2px 0}
+.nav-btn .ni{font-size:15px;flex-shrink:0;width:20px;text-align:center}
+.nav-btn .nc{margin-left:auto;font-size:10px;font-family:var(--fm);background:var(--bg3);color:var(--tx3);border-radius:9px;padding:1px 6px;flex-shrink:0}
+.nav-btn.active .nc{background:var(--acl);color:var(--ac)}
+
+/* Section label for private/public */
+.nav-section-badge{display:inline-block;font-size:9px;padding:1px 5px;border-radius:4px;font-family:var(--fm);margin-left:auto;flex-shrink:0}
+.nb-pub{background:var(--greend);color:#15803d}
+.nb-priv{background:var(--purpd);color:#6d28d9}
+
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:90;background:rgba(246,243,238,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd);padding:10px 20px;display:flex;align-items:center;gap:11px;transition:background var(--tr)}
+[data-dark] .topbar{background:rgba(13,12,11,.92)}
+.topbar-title{font-family:var(--fs);font-size:17px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ibtn{width:33px;height:33px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--sur);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--tx2);transition:all var(--tr);flex-shrink:0;cursor:pointer}
+.ibtn:hover{background:var(--bg3);color:var(--tx)}
+.ibtn.on{background:var(--acl);color:var(--ac);border-color:var(--ac)}
+.search-box{display:flex;align-items:center;gap:6px;background:var(--sur);border:1px solid var(--bd);border-radius:var(--rs);padding:5px 10px;flex:1;max-width:260px;transition:all var(--tr)}
+.search-box:focus-within{border-color:var(--ac);box-shadow:0 0 0 3px var(--acl)}
+.search-box input{border:none;background:transparent;font-size:12.5px;color:var(--tx);outline:none;width:100%}
+.search-box input::placeholder{color:var(--tx3)}
+.content{padding:18px 20px 40px;flex:1}
+
+/* ── BANNER (read-only / login prompt) ── */
+.banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 20px 0;padding:11px 15px;border:1px solid var(--ac);border-radius:var(--r);font-size:13px;color:var(--tx2)}
+.banner.info{background:var(--acl2)}
+.banner.warn{background:var(--redd);border-color:var(--red)}
+.gbtn{padding:5px 12px;border-radius:var(--rs);font-size:12px;border:1px solid var(--bd);background:var(--sur);color:var(--tx2);transition:all var(--tr);flex-shrink:0}
+.gbtn:hover{border-color:var(--ac);color:var(--ac)}
+.gbtn.p{background:var(--ac);color:#fff;border-color:var(--ac)}.gbtn.p:hover{background:var(--ac2)}
+
+/* ── GRID/LIST/COMPACT (same as main app) ── */
+.vctrl{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.vsel{padding:5px 10px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--sur);color:var(--tx);font-size:12px;outline:none;cursor:pointer}
+.vcnt{font-size:11.5px;color:var(--tx3);font-family:var(--fm);flex:1}
+.vbtns{display:flex;gap:3px}
+.vbtn{width:30px;height:30px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--sur);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--tx3);cursor:pointer;transition:all var(--tr)}
+.vbtn.on{background:var(--acl);color:var(--ac);border-color:var(--ac)}
+.fbar{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.ftag{padding:4px 10px;border-radius:18px;font-size:11.5px;border:1px solid var(--bd);background:var(--sur);color:var(--tx2);cursor:pointer;white-space:nowrap;transition:all var(--tr)}
+.ftag:hover{border-color:var(--ac);color:var(--ac)}.ftag.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.grid-view{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:13px;animation:fadeIn .2s}
+.grid-card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);overflow:hidden;cursor:pointer;transition:all var(--tr);position:relative}
+.grid-card:hover{transform:translateY(-3px);box-shadow:var(--shl)}
+.g-cov{width:100%;aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.g-cov img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.grid-card:hover .g-cov img{transform:scale(1.05)}
+.g-cov .nc{font-size:34px;opacity:.35}
+.cover-badge{position:absolute;top:6px;right:6px;z-index:1}
+.g-info{padding:9px 10px}
+.g-title{font-size:12.5px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:2px}
+.g-meta{font-size:11px;color:var(--tx3)}
+.list-view{display:flex;flex-direction:column;gap:8px;animation:fadeIn .2s}
+.list-card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);display:flex;gap:13px;padding:12px;cursor:pointer;transition:all var(--tr);position:relative}
+.list-card:hover{box-shadow:var(--sh);transform:translateX(3px)}
+.l-cov{width:60px;aspect-ratio:2/3;border-radius:var(--rs);background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:19px}
+.l-cov img{width:100%;height:100%;object-fit:cover}
+.l-info{flex:1;min-width:0}
+.l-title{font-size:14px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.4}
+.l-meta{font-size:11.5px;color:var(--tx3);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:5px}
+.l-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+
+/* ── STATUS BADGES ── */
+.sbadge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
+.sbadge.watched{background:var(--green);color:#fff}
+.sbadge.watching{background:var(--amber);color:#fff}
+.sbadge.unwatched{background:rgba(90,85,80,.7);color:#fff}
+.sbadge.admin-badge{background:var(--amber);color:#fff}
+.sbadge.user-badge{background:var(--ac);color:#fff}
+
+/* ── MODAL ── */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.52);backdrop-filter:blur(5px);z-index:500;display:flex;align-items:center;justify-content:center;padding:14px;animation:fadeIn .18s}
+.modal{background:var(--sur);border-radius:var(--rl);width:100%;max-height:93vh;overflow-y:auto;box-shadow:var(--shl);animation:slideUp .26s cubic-bezier(.4,0,.2,1);border:1px solid var(--bd)}
+.mhd{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--sur);z-index:10}
+.mtt{font-family:var(--fs);font-size:17px;font-weight:600}
+.mclose{width:28px;height:28px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--sur2);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tx2);cursor:pointer}
+.mbody{padding:18px 20px 22px}
+.mfoot{padding:13px 20px;border-top:1px solid var(--bd);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;position:sticky;bottom:0;background:var(--sur)}
+
+/* ── FORM ── */
+.fg{margin-bottom:14px}.fg:last-child{margin-bottom:0}
+.fl{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:5px;display:flex;align-items:baseline;gap:6px}
+.fl-note{font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx3);font-size:10.5px}
+.fi{width:100%;padding:8px 11px;border:1px solid var(--bd);border-radius:var(--rs);background:var(--bg);color:var(--tx);font-size:13.5px;outline:none;transition:all var(--tr)}
+.fi:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--acl)}
+.fhint{font-size:11px;color:var(--tx3);margin-top:3px;line-height:1.5}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:7px 14px;border-radius:var(--rs);font-size:13px;border:1px solid var(--bd);background:var(--sur2);color:var(--tx);transition:all var(--tr);cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{background:var(--bg3)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.p{background:var(--ac);color:#fff;border-color:var(--ac)}.btn.p:hover:not(:disabled){background:var(--ac2)}
+.btn.d{color:var(--red);border-color:var(--red)}.btn.d:hover:not(:disabled){background:var(--red);color:#fff}
+.btn.b{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.sm{padding:4px 10px;font-size:12px}
+
+/* ── TABS (public / private) ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--bd);padding-bottom:1px}
+.tab{padding:8px 14px;font-size:13px;font-weight:500;border-bottom:2px solid transparent;cursor:pointer;color:var(--tx3);transition:all var(--tr);display:flex;align-items:center;gap:6px;border-radius:var(--rs) var(--rs) 0 0}
+.tab:hover{color:var(--tx);background:var(--bg2)}
+.tab.on{color:var(--ac);border-bottom-color:var(--ac);background:var(--acl2)}
+.tab-badge{font-size:9.5px;font-family:var(--fm);background:var(--bg3);color:var(--tx3);padding:1px 5px;border-radius:8px}
+.tab.on .tab-badge{background:var(--acl);color:var(--ac)}
+
+/* ── ADMIN TABLE ── */
+.admin-table{width:100%;border-collapse:collapse;font-size:13px}
+.admin-table th{text-align:left;padding:8px 12px;background:var(--bg2);color:var(--tx3);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bd)}
+.admin-table td{padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.admin-table tr:last-child td{border-bottom:none}
+.admin-table tr:hover td{background:var(--bg2)}
+
+/* ── EMPTY ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:52px 20px;color:var(--tx3);text-align:center}
+.empty-i{font-size:44px;margin-bottom:12px;opacity:.4}
+.empty-t{font-size:14px;font-weight:600;color:var(--tx2);margin-bottom:4px}
+.empty-s{font-size:12px;line-height:1.7;max-width:240px}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:24px;right:24px;width:50px;height:50px;border-radius:50%;background:var(--ac);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 18px rgba(200,119,58,.45);transition:all var(--tr);z-index:150;cursor:pointer}
+.fab:hover{transform:scale(1.1) rotate(90deg);background:var(--ac2)}
+
+/* ── TOASTS ── */
+.toasts{position:fixed;bottom:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.toast{background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:10px 14px;font-size:12.5px;box-shadow:var(--shl);display:flex;align-items:center;gap:8px;pointer-events:auto;animation:slideInR .22s;max-width:290px}
+.toast.ok{border-color:#22c55e55}.toast.err{border-color:#ef444455}.toast.info{border-color:#3b82f655}
+
+/* ── SIDEBAR OVERLAY (mobile) ── */
+.sb-ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:99}
+.mob-toggle{display:none;position:fixed;top:11px;left:11px;z-index:95;width:33px;height:33px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--sur);align-items:center;justify-content:center;font-size:16px;box-shadow:var(--sh);cursor:pointer;transition:left var(--tr)}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideInR{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  .sb-ovl.show{display:block}.mob-toggle{display:flex}
+  .mob-toggle.sb-open{left:calc(var(--sw) + 8px)}
+  .main{margin-left:0}.topbar{padding:9px 12px 9px 48px}
+  .content{padding:12px 12px 40px}.banner{margin:10px 12px 0}
+  .grid-view{grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px}
+  .frow{grid-template-columns:1fr}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-row">
+      <div class="sb-logo-icon">
+        <svg viewBox="0 0 100 100" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#c8773a"/><stop offset="100%" style="stop-color:#8b4d1e"/>
+          </linearGradient></defs>
+          <rect width="100" height="100" rx="22" fill="url(#lg)"/>
+          <rect x="17" y="63" width="66" height="12" rx="4" fill="rgba(255,255,255,.22)"/>
+          <rect x="17" y="63" width="6" height="12" rx="3" fill="rgba(255,255,255,.5)"/>
+          <rect x="21" y="49" width="60" height="12" rx="4" fill="rgba(255,255,255,.3)"/>
+          <rect x="21" y="49" width="6" height="12" rx="3" fill="rgba(255,255,255,.65)"/>
+          <rect x="25" y="35" width="52" height="12" rx="4" fill="rgba(255,255,255,.42)"/>
+          <rect x="25" y="35" width="6" height="12" rx="3" fill="rgba(255,255,255,.9)"/>
+          <text x="50" y="32" font-family="serif" font-size="23" font-weight="700" text-anchor="middle" fill="white" opacity=".92">藏</text>
+        </svg>
+      </div>
+      <div>
+        <div class="site-title">藏·索引</div>
+        <span class="site-ver">v7</span>
+      </div>
+    </div>
+    <div class="sb-logo-sub">MY COLLECTION UNIVERSE</div>
+  </div>
+
+  <!-- User badge -->
+  <div class="sb-user" id="sb-user-badge" onclick="openAccountModal()">
+    <div class="sb-user-av role-guest" id="sb-av">?</div>
+    <div class="sb-user-name" id="sb-uname">未登录</div>
+    <div class="sb-user-role" id="sb-urole">访客</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-sec">公共收藏</div>
+    <button class="nav-btn active" data-page="books" onclick="navigateTo('books')">
+      <span class="ni">📚</span>图书<span class="nc" id="cnt-books">0</span>
+      <span class="nav-section-badge nb-pub">公共</span>
+    </button>
+    <button class="nav-btn" data-page="anime" onclick="navigateTo('anime')">
+      <span class="ni">🎌</span>番剧<span class="nc" id="cnt-anime">0</span>
+      <span class="nav-section-badge nb-pub">公共</span>
+    </button>
+    <button class="nav-btn" data-page="movies" onclick="navigateTo('movies')">
+      <span class="ni">🎬</span>电影<span class="nc" id="cnt-movies">0</span>
+      <span class="nav-section-badge nb-pub">公共</span>
+    </button>
+    <button class="nav-btn" data-page="series" onclick="navigateTo('series')">
+      <span class="ni">📺</span>剧集<span class="nc" id="cnt-series">0</span>
+      <span class="nav-section-badge nb-pub">公共</span>
+    </button>
+    <button class="nav-btn" data-page="other" onclick="navigateTo('other')">
+      <span class="ni">🗂️</span>其他<span class="nc" id="cnt-other">0</span>
+      <span class="nav-section-badge nb-pub">公共</span>
+    </button>
+
+    <div class="sb-sec" style="margin-top:6px" id="priv-sec">私人收藏</div>
+    <div id="priv-nav">
+      <!-- Injected when logged in -->
+      <button class="nav-btn" data-page="priv-books" onclick="navigateTo('priv-books')">
+        <span class="ni">📚</span>图书<span class="nc" id="cnt-priv-books">0</span>
+        <span class="nav-section-badge nb-priv">私人</span>
+      </button>
+      <button class="nav-btn" data-page="priv-anime" onclick="navigateTo('priv-anime')">
+        <span class="ni">🎌</span>番剧<span class="nc" id="cnt-priv-anime">0</span>
+        <span class="nav-section-badge nb-priv">私人</span>
+      </button>
+      <button class="nav-btn" data-page="priv-movies" onclick="navigateTo('priv-movies')">
+        <span class="ni">🎬</span>电影<span class="nc" id="cnt-priv-movies">0</span>
+        <span class="nav-section-badge nb-priv">私人</span>
+      </button>
+      <button class="nav-btn" data-page="priv-series" onclick="navigateTo('priv-series')">
+        <span class="ni">📺</span>剧集<span class="nc" id="cnt-priv-series">0</span>
+        <span class="nav-section-badge nb-priv">私人</span>
+      </button>
+      <button class="nav-btn" data-page="priv-other" onclick="navigateTo('priv-other')">
+        <span class="ni">🗂️</span>其他<span class="nc" id="cnt-priv-other">0</span>
+        <span class="nav-section-badge nb-priv">私人</span>
+      </button>
+    </div>
+
+    <div class="sb-sec" style="margin-top:6px">功能</div>
+    <button class="nav-btn" data-page="stats" onclick="navigateTo('stats')">
+      <span class="ni">📊</span>统计
+    </button>
+    <button class="nav-btn" data-page="admin" onclick="navigateTo('admin')" id="admin-nav-btn" style="display:none">
+      <span class="ni">🛡️</span>用户管理
+    </button>
+    <button class="nav-btn" data-page="settings" onclick="navigateTo('settings')">
+      <span class="ni">⚙️</span>设置
+    </button>
+  </nav>
+</aside>
+
+<div class="sb-ovl" id="sb-ovl" onclick="closeSidebar()"></div>
+<button class="mob-toggle" id="mob-toggle" onclick="toggleSidebar()">☰</button>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════ -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">📚 图书</div>
+    <div class="topbar-right">
+      <div class="search-box">
+        <span style="color:var(--tx3);font-size:13px;flex-shrink:0">🔍</span>
+        <input type="text" placeholder="搜索当前分类..." id="search-inp" oninput="onSearch()" onkeydown="if(event.key==='Escape')clearSearch()">
+      </div>
+      <button class="ibtn" onclick="toggleDark()" id="dark-btn" title="深色模式">🌙</button>
+      <button class="ibtn" onclick="openLoginModal()" id="login-btn" title="登录">👤</button>
+    </div>
+  </div>
+  <div id="banner-wrap"></div>
+  <div class="content" id="content">
+    <div class="empty"><div class="empty-i">⏳</div><div class="empty-t">加载中…</div></div>
+  </div>
+</main>
+
+<button class="fab" id="fab" onclick="openAddModal()" style="display:none">＋</button>
+<div class="toasts" id="toasts"></div>
+</div>
+<div id="M"></div>
+
+<script>
+'use strict';
+// ════════════════════════════════════════════════════════════════
+//  藏·索引 v7 — 带账号系统的前端客户端
+//  API 基础路径（Vercel 部署后自动指向同域 /api）
+// ════════════════════════════════════════════════════════════════
+
+// ── CONFIG ───────────────────────────────────────────────────────
+const SITE = { title:'藏·索引', version:'v7', sk:'coll_v7_auth' };
+const API  = '/api';   // 所有 API 请求前缀
+
+const CATS = {
+  books:  { label:'图书', icon:'📚', type:'book'  },
+  anime:  { label:'番剧', icon:'🎌', type:'media' },
+  movies: { label:'电影', icon:'🎬', type:'media' },
+  series: { label:'剧集', icon:'📺', type:'media' },
+  other:  { label:'其他', icon:'🗂️', type:'media' },
+};
+
+// 私人分类 key = 'priv-' + 公共 key
+const PRIV_PREFIX = 'priv-';
+const isPrivPage = p => p.startsWith(PRIV_PREFIX);
+const pubCatKey  = p => isPrivPage(p) ? p.slice(PRIV_PREFIX.length) : p;
+
+const STATUS_OPTS = [
+  { id:'watched',   label:'✅ 已看', cls:'watched'  },
+  { id:'watching',  label:'👁️ 在看', cls:'watching' },
+  { id:'unwatched', label:'⏳ 未看', cls:'unwatched'},
+];
+
+// ── STATE ────────────────────────────────────────────────────────
+let auth = {
+  token: localStorage.getItem('cang_token') || '',
+  user:  JSON.parse(localStorage.getItem('cang_user') || 'null'),
+};
+// 公共 / 私人数据缓存
+let pubItems  = [];   // 全部公共条目（从 API 拉取）
+let privItems = [];   // 当前用户私人条目
+let curPage   = 'books';
+let curView   = localStorage.getItem('cang_view') || 'list';
+let curSort   = 'createdAt';
+let searchQ   = '';
+let filterStatus = [];
+
+// ── HELPERS ──────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const eh = s => !s ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ea = s => !s ? '' : String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+function isLoggedIn() { return !!auth.token && !!auth.user; }
+function isAdmin()    { return auth.user?.role === 'admin'; }
+
+/** Fetch wrapper — automatically adds Authorization header */
+async function apiFetch(path, opts = {}) {
+  const headers = { 'Content-Type':'application/json', ...(opts.headers||{}) };
+  if (auth.token) headers['Authorization'] = `Bearer ${auth.token}`;
+  const res = await fetch(API + path, { ...opts, headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+async function init() {
+  // Apply saved dark mode
+  const dark = localStorage.getItem('cang_dark') === '1';
+  if (dark) { document.documentElement.setAttribute('data-dark',''); $('dark-btn').textContent='☀️'; }
+  document.title = SITE.title;
+
+  // If we have a stored token, verify it and load user data
+  if (auth.token) {
+    const r = await apiFetch('/auth/me');
+    if (r.ok && r.data.user) {
+      auth.user = r.data.user;
+      localStorage.setItem('cang_user', JSON.stringify(auth.user));
+    } else if (r.status === 401) {
+      // Token expired
+      logout(false);
+    }
+  }
+
+  updateUserUI();
+  await loadPublicItems();
+  if (isLoggedIn()) await loadPrivateItems();
+  navigateTo('books');
+}
+
+// ── USER UI ──────────────────────────────────────────────────────
+function updateUserUI() {
+  const av    = $('sb-av');
+  const uname = $('sb-uname');
+  const urole = $('sb-urole');
+  const fab   = $('fab');
+  const adminBtn = $('admin-nav-btn');
+  const loginBtn = $('login-btn');
+
+  if (isLoggedIn()) {
+    const u = auth.user;
+    av.className = 'sb-user-av role-' + u.role;
+    av.textContent = u.username[0].toUpperCase();
+    uname.textContent = u.username;
+    urole.textContent = u.role === 'admin' ? '管理员' : '普通用户';
+    loginBtn.textContent = '👤';
+    loginBtn.title = '账号设置';
+    if (adminBtn) adminBtn.style.display = u.role === 'admin' ? 'flex' : 'none';
+  } else {
+    av.className = 'sb-user-av role-guest';
+    av.textContent = '?';
+    uname.textContent = '未登录';
+    urole.textContent = '访客';
+    if (adminBtn) adminBtn.style.display = 'none';
+  }
+  // FAB visible only if logged in and on a collection page
+  updateFAB();
+}
+
+function updateFAB() {
+  const collPages = [...Object.keys(CATS), ...Object.keys(CATS).map(k=>PRIV_PREFIX+k)];
+  $('fab').style.display = (isLoggedIn() && collPages.includes(curPage)) ? 'flex' : 'none';
+}
+
+// ── DATA LOADING ─────────────────────────────────────────────────
+async function loadPublicItems() {
+  const r = await apiFetch('/collection');
+  if (r.ok) {
+    pubItems = r.data.items || [];
+    updateCounts();
+  } else {
+    toast('公共收藏加载失败', 'err');
+  }
+}
+
+async function loadPrivateItems() {
+  if (!isLoggedIn()) { privItems = []; return; }
+  const r = await apiFetch('/private');
+  if (r.ok) {
+    privItems = r.data.items || [];
+    updatePrivCounts();
+  } else {
+    toast('私人收藏加载失败', 'err');
+  }
+}
+
+function getItems() {
+  const cat = pubCatKey(curPage);
+  if (isPrivPage(curPage)) return privItems.filter(i => i.category === cat);
+  return pubItems.filter(i => i.category === cat);
+}
+
+function getFiltered() {
+  let items = getItems();
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    items = items.filter(i =>
+      (i.title||'').toLowerCase().includes(q) ||
+      (i.author||'').toLowerCase().includes(q) ||
+      (i.desc||'').toLowerCase().includes(q) ||
+      (i.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  }
+  if (filterStatus.length) items = items.filter(i => filterStatus.includes(i.status));
+  return [...items].sort((a,b) => {
+    if (curSort === 'title')  return (a.title||'').localeCompare(b.title||'','zh');
+    if (curSort === 'rating') return (b.rating||0) - (a.rating||0);
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+}
+
+function updateCounts() {
+  Object.keys(CATS).forEach(k => {
+    const el = $('cnt-'+k);
+    if (el) el.textContent = pubItems.filter(i=>i.category===k).length;
+  });
+}
+function updatePrivCounts() {
+  Object.keys(CATS).forEach(k => {
+    const el = $('cnt-priv-'+k);
+    if (el) el.textContent = privItems.filter(i=>i.category===k).length;
+  });
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────────
+function navigateTo(page) {
+  curPage = page;
+  searchQ = '';
+  filterStatus = [];
+  const sinp = $('search-inp'); if (sinp) sinp.value = '';
+
+  document.querySelectorAll('.nav-btn[data-page]').forEach(b =>
+    b.classList.toggle('active', b.dataset.page === page));
+
+  const cat = CATS[pubCatKey(page)] || {};
+  const priv = isPrivPage(page);
+  const pageTitles = { stats:'📊 统计', settings:'⚙️ 设置', admin:'🛡️ 用户管理' };
+  $('topbar-title').textContent = pageTitles[page] ||
+    ((priv ? '🔒 私人 · ' : '') + (cat.icon||'') + ' ' + (cat.label||page));
+
+  updateFAB();
+  renderBanner();
+  renderContent();
+  closeSidebar();
+}
+
+// ── BANNER ───────────────────────────────────────────────────────
+function renderBanner() {
+  const w = $('banner-wrap'); if (!w) return;
+  const collPages = [...Object.keys(CATS),...Object.keys(CATS).map(k=>PRIV_PREFIX+k)];
+  if (!collPages.includes(curPage)) { w.innerHTML = ''; return; }
+
+  if (isPrivPage(curPage) && !isLoggedIn()) {
+    w.innerHTML = `<div class="banner warn">
+      <span>🔒</span>
+      <div style="flex:1"><strong>私人收藏需要登录</strong> — 每位用户有独立的私人空间</div>
+      <button class="gbtn p" onclick="openLoginModal()">立即登录</button>
+    </div>`;
+    return;
+  }
+  if (!isPrivPage(curPage) && !isLoggedIn()) {
+    w.innerHTML = `<div class="banner info">
+      <span>👁️</span>
+      <div style="flex:1"><strong>只读浏览模式</strong> — 登录后可在公共收藏中添加、修改条目</div>
+      <button class="gbtn p" onclick="openLoginModal()">登录</button>
+    </div>`;
+    return;
+  }
+  w.innerHTML = '';
+}
+
+// ── CONTENT RENDERING ────────────────────────────────────────────
+function renderContent() {
+  const c = $('content'); if (!c) return;
+  if (curPage === 'stats')    { c.innerHTML = renderStats();    return; }
+  if (curPage === 'settings') { c.innerHTML = renderSettings(); return; }
+  if (curPage === 'admin')    { c.innerHTML = ''; renderAdmin(c); return; }
+
+  // Private page but not logged in
+  if (isPrivPage(curPage) && !isLoggedIn()) {
+    c.innerHTML = `<div class="empty"><div class="empty-i">🔒</div>
+      <div class="empty-t">需要登录</div>
+      <div class="empty-s">登录后访问你的私人收藏空间</div>
+      <button class="btn p" style="margin-top:14px" onclick="openLoginModal()">立即登录</button>
+    </div>`;
+    return;
+  }
+
+  const items = getFiltered();
+  c.innerHTML = renderFilterBar() + renderViewCtrl(items.length) +
+    (items.length ? renderItems(items) : renderEmpty());
+}
+
+function renderFilterBar() {
+  let h = '<div class="fbar">';
+  STATUS_OPTS.forEach(s => {
+    h += `<button class="ftag${filterStatus.includes(s.id)?' on':''}" onclick="toggleFilter('${s.id}')">${eh(s.label)}</button>`;
+  });
+  if (filterStatus.length) h += `<button class="ftag" onclick="clearFilter()" style="color:var(--red)">✕ 清除</button>`;
+  return h + '</div>';
+}
+function toggleFilter(id) {
+  const i = filterStatus.indexOf(id);
+  i>-1 ? filterStatus.splice(i,1) : filterStatus.push(id);
+  renderContent();
+}
+function clearFilter() { filterStatus=[]; renderContent(); }
+
+function renderViewCtrl(cnt) {
+  return `<div class="vctrl">
+    <select class="vsel" onchange="curSort=this.value;renderContent()">
+      <option value="createdAt"${curSort==='createdAt'?' selected':''}>最近添加</option>
+      <option value="title"${curSort==='title'?' selected':''}>名称</option>
+      <option value="rating"${curSort==='rating'?' selected':''}>评分</option>
+    </select>
+    <span class="vcnt">${cnt} 项</span>
+    <div class="vbtns">
+      <button class="vbtn${curView==='grid'?' on':''}" onclick="setView('grid')">▦</button>
+      <button class="vbtn${curView==='list'?' on':''}" onclick="setView('list')">≡</button>
+    </div>
+  </div>`;
+}
+function setView(v) { curView=v; localStorage.setItem('cang_view',v); renderContent(); }
+
+function renderItems(items) {
+  return curView==='grid' ? renderGrid(items) : renderList(items);
+}
+
+function coverHTML(item) {
+  if (item.cover) return `<img src="${ea(item.cover)}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+  return `<span class="nc">${CATS[item.category]?.icon||'📄'}</span>`;
+}
+function sBadge(item) {
+  const s = STATUS_OPTS.find(o=>o.id===item.status);
+  if (!s) return '';
+  const lbl = {watched:'已看',watching:'在看',unwatched:'未看'};
+  return `<span class="sbadge ${s.cls}">${lbl[item.status]||s.label}</span>`;
+}
+function miniStars(r) {
+  if (!r) return '';
+  let h = '';
+  for (let n=1;n<=5;n++) {
+    const w = r>=n?'100%':r>=n-.5?'50%':'0%';
+    h += `<span style="position:relative;display:inline-block;color:var(--bd)">★<span style="position:absolute;left:0;top:0;overflow:hidden;width:${w};color:var(--amber)">★</span></span>`;
+  }
+  return `<span style="display:inline-flex;align-items:center;font-size:12px">${h}<span style="font-size:9.5px;color:var(--tx3);margin-left:2px;font-family:var(--fm)">${r}</span></span>`;
+}
+
+function renderGrid(items) {
+  return `<div class="grid-view">${items.map(it=>`
+    <div class="grid-card" onclick="openDetail('${it.id}')">
+      <div class="cover-badge">${sBadge(it)}</div>
+      <div class="g-cov">${coverHTML(it)}</div>
+      <div class="g-info">
+        <div class="g-title">${eh(it.title||'无标题')}</div>
+        <div class="g-meta">${eh(it.author||it.year||'')}</div>
+        ${miniStars(it.rating)?`<div style="margin-top:2px">${miniStars(it.rating)}</div>`:''}
+        ${(it.tags||[]).length?`<div style="display:flex;gap:2px;flex-wrap:wrap;margin-top:3px">${it.tags.slice(0,3).map(t=>`<span style="font-size:9.5px;padding:1px 5px;border-radius:6px;background:var(--bg3);color:var(--tx3)">${eh(t)}</span>`).join('')}</div>`:''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function renderList(items) {
+  return `<div class="list-view">${items.map(it=>`
+    <div class="list-card" onclick="openDetail('${it.id}')">
+      <div class="l-cov">${coverHTML(it)}</div>
+      <div class="l-info">
+        <div class="l-title">${eh(it.title||'无标题')} ${sBadge(it)}</div>
+        <div class="l-meta">
+          ${it.author?`<span>👤 ${eh(it.author)}</span>`:''}
+          ${it.year?`<span>📅 ${eh(it.year)}</span>`:''}
+          ${miniStars(it.rating)||''}
+        </div>
+        ${it.desc?`<div style="font-size:12.5px;color:var(--tx2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${eh(it.desc)}</div>`:''}
+        <div class="l-tags">${(it.tags||[]).map(t=>`<span style="font-size:11px;padding:2px 7px;border-radius:9px;background:var(--bg3);color:var(--tx2)">${eh(t)}</span>`).join('')}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function renderEmpty() {
+  return `<div class="empty">
+    <div class="empty-i">${CATS[pubCatKey(curPage)]?.icon||'🗂️'}</div>
+    <div class="empty-t">还没有收藏</div>
+    <div class="empty-s">${isLoggedIn()?'点击右下角 + 添加':'登录后可添加内容'}</div>
+  </div>`;
+}
+
+// ── SEARCH ───────────────────────────────────────────────────────
+function onSearch() { searchQ = $('search-inp')?.value||''; renderContent(); }
+function clearSearch() { searchQ=''; const i=$('search-inp');if(i)i.value=''; renderContent(); }
+
+// ── DETAIL MODAL ─────────────────────────────────────────────────
+function openDetail(itemId) {
+  const items = isPrivPage(curPage) ? privItems : pubItems;
+  const item  = items.find(i=>i.id===itemId);
+  if (!item) return;
+
+  const canEdit = isLoggedIn() && (isAdmin() || item.createdBy === auth.user?.uid);
+  const linksH = (item.links||[]).map(l=>
+    `<a href="${ea(l.url)}" target="_blank" rel="noopener"
+       style="display:inline-flex;align-items:center;gap:4px;padding:6px 13px;border-radius:18px;font-size:12.5px;font-weight:500;border:1px solid var(--ac);background:var(--acl);color:var(--ac);margin-right:5px;margin-bottom:5px;transition:all .2s"
+       onmouseover="this.style.background='var(--ac)';this.style.color='#fff'"
+       onmouseout="this.style.background='var(--acl)';this.style.color='var(--ac)'">
+      ${l.type==='file'?'📎':'🔗'} ${eh(l.name||'链接')}</a>`).join('');
+
+  const descH  = item.desc  ? marked.parse(item.desc)  : '';
+  const notesH = item.notes ? marked.parse(item.notes) : '';
+
+  setM(`<div class="moverlay" id="det" onclick="if(event.target===this)closeM('det')">
+    <div class="modal" style="max-width:700px" onclick="event.stopPropagation()">
+      <div class="mhd">
+        <div class="mtt">${CATS[item.category]?.icon||''} 详情</div>
+        <button class="mclose" onclick="closeM('det')">×</button>
+      </div>
+      <div class="mbody">
+        <div style="display:flex;gap:20px">
+          <div style="width:110px;aspect-ratio:2/3;background:var(--bg3);border-radius:var(--r);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:34px">
+            ${coverHTML(item)}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:var(--fs);font-size:19px;font-weight:700;margin-bottom:7px;line-height:1.3">${eh(item.title||'无标题')}</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px">${sBadge(item)} ${miniStars(item.rating)||''}</div>
+            ${item.author?`<div style="font-size:12.5px;color:var(--tx2);margin-bottom:3px"><span style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-right:5px">作者</span>${eh(item.author)}</div>`:''}
+            ${item.year?`<div style="font-size:12.5px;color:var(--tx2);margin-bottom:3px"><span style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-right:5px">年份</span>${eh(item.year)}</div>`:''}
+            ${(item.tags||[]).length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:9px">${item.tags.map(t=>`<span style="font-size:11px;padding:2px 7px;border-radius:9px;background:var(--bg3);color:var(--tx2)">${eh(t)}</span>`).join('')}</div>`:''}
+            ${linksH?`<div style="margin-top:8px">${linksH}</div>`:''}
+          </div>
+        </div>
+        ${descH?`<div style="margin-top:16px"><div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;margin-bottom:7px">简介</div><div class="mdc" style="font-size:13.5px;line-height:1.85;color:var(--tx2)">${descH}</div></div>`:''}
+        ${notesH?`<div style="margin-top:14px"><div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;margin-bottom:7px">心得</div><div class="mdc" style="font-size:13.5px;line-height:1.85;color:var(--tx2)">${notesH}</div></div>`:''}
+        <div style="font-size:11px;color:var(--tx3);font-family:var(--fm);margin-top:14px">添加于 ${new Date(item.createdAt).toLocaleString('zh-CN')}</div>
+      </div>
+      <div class="mfoot">
+        ${canEdit?`<button class="btn d" onclick="deleteItem('${itemId}')">🗑️ 删除</button>
+                   <button class="btn" onclick="closeM('det');openAddModal('${itemId}')">✏️ 编辑</button>`:''}
+        <button class="btn" onclick="closeM('det')">关闭</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+// ── ADD / EDIT MODAL ─────────────────────────────────────────────
+let _editId=null, _cover='', _rating=0, _tags=new Set(), _links=[];
+
+function openAddModal(itemId=null) {
+  if (!isLoggedIn()) { openLoginModal(); return; }
+  _editId = itemId;
+  const items = isPrivPage(curPage) ? privItems : pubItems;
+  const it    = itemId ? items.find(i=>i.id===itemId) : null;
+  _cover  = it?.cover  || '';
+  _rating = it?.rating || 0;
+  _tags   = new Set(it?.tags||[]);
+  _links  = it?.links  ? JSON.parse(JSON.stringify(it.links)) : [];
+
+  const cat = CATS[pubCatKey(curPage)] || {};
+
+  setM(`<div class="moverlay" id="add-m" onclick="if(event.target===this)closeM('add-m')">
+    <div class="modal" style="max-width:600px" onclick="event.stopPropagation()">
+      <div class="mhd">
+        <div class="mtt">${it?'编辑':'添加'} ${cat.icon||''} ${cat.label||curPage}</div>
+        <button class="mclose" onclick="closeM('add-m')">×</button>
+      </div>
+      <div class="mbody">
+        <div class="fg"><div class="fl">封面链接<span class="fl-note">jpg/png/gif URL 推荐</span></div>
+          <input class="fi" id="f-cover" type="url" placeholder="https://…" value="${ea(_cover)}" oninput="_cover=this.value">
+        </div>
+        <div class="fg"><div class="fl">名称 *</div>
+          <input class="fi" id="f-title" placeholder="作品名称" value="${ea(it?.title||'')}">
+        </div>
+        <div class="frow">
+          <div class="fg"><div class="fl">作者/导演</div><input class="fi" id="f-author" value="${ea(it?.author||'')}"></div>
+          <div class="fg"><div class="fl">年份</div><input class="fi" id="f-year" value="${ea(it?.year||'')}" placeholder="2024"></div>
+        </div>
+        <div class="fg"><div class="fl">状态</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="sp-opts">
+            ${STATUS_OPTS.map(s=>`<button style="padding:5px 13px;border-radius:18px;font-size:12px;border:1px solid var(--bd);cursor:pointer;transition:all .2s;background:${(it?.status||'unwatched')===s.id?'var(--ac)':'var(--sur2)'};color:${(it?.status||'unwatched')===s.id?'#fff':'var(--tx2)'}"
+              data-val="${s.id}" onclick="pickSt(this)">${eh(s.label)}</button>`).join('')}
+          </div>
+        </div>
+        <div class="fg"><div class="fl">评分</div>
+          <div id="stars" style="display:flex;align-items:center;gap:2px">${renderStarsHTML(_rating)}</div>
+        </div>
+        <div class="fg"><div class="fl">标签<span class="fl-note">逗号分隔</span></div>
+          <input class="fi" id="f-tags" placeholder="悬疑, 日本, 推理" value="${ea((it?.tags||[]).join(', '))}">
+        </div>
+        <div class="fg"><div class="fl">简介</div>
+          <textarea class="fi" id="f-desc" rows="3" placeholder="作品简介…">${eh(it?.desc||'')}</textarea>
+        </div>
+        <div class="fg"><div class="fl">心得</div>
+          <textarea class="fi" id="f-notes" rows="3" placeholder="读后感/观后感…">${eh(it?.notes||'')}</textarea>
+        </div>
+      </div>
+      <div class="mfoot">
+        <button class="btn" onclick="closeM('add-m')">取消</button>
+        <button class="btn p" onclick="saveItem()" id="save-btn">💾 保存</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+function renderStarsHTML(r) {
+  let h='';
+  for(let n=1;n<=5;n++){
+    const w=r>=n?'100%':r>=n-.5?'50%':'0%';
+    h+=`<span style="position:relative;width:22px;height:22px;cursor:pointer;font-size:21px;line-height:22px;flex-shrink:0"
+      onmousemove="hStar(event,this,${n})" onmouseleave="uhStars()" onclick="cStar(event,this,${n})">
+      <span style="color:var(--bd)">★</span>
+      <span style="position:absolute;top:0;left:0;overflow:hidden;width:${w};color:var(--amber)">★</span></span>`;
+  }
+  return h+`<span style="font-size:12px;color:var(--tx3);font-family:var(--fm);margin-left:5px" id="slbl">${r?r+' 分':'未评分'}</span>`;
+}
+function hStar(e,el,n){
+  const v=e.clientX<el.getBoundingClientRect().left+el.getBoundingClientRect().width/2?n-.5:n;
+  document.querySelectorAll('#stars span[style*="position:absolute"]').forEach((sf,i)=>sf.style.width=v>=(i+1)?'100%':v>=(i+.5)?'50%':'0%');
+  const l=$('slbl');if(l)l.textContent=v+' 分';
+}
+function uhStars(){
+  document.querySelectorAll('#stars span[style*="position:absolute"]').forEach((sf,i)=>sf.style.width=_rating>=(i+1)?'100%':_rating>=(i+.5)?'50%':'0%');
+  const l=$('slbl');if(l)l.textContent=_rating?_rating+' 分':'未评分';
+}
+function cStar(e,el,n){
+  const v=e.clientX<el.getBoundingClientRect().left+el.getBoundingClientRect().width/2?n-.5:n;
+  _rating=_rating===v?0:v; $('stars').innerHTML=renderStarsHTML(_rating);
+}
+function pickSt(btn){
+  document.querySelectorAll('#sp-opts button').forEach(b=>{b.style.background='var(--sur2)';b.style.color='var(--tx2)';});
+  btn.style.background='var(--ac)'; btn.style.color='#fff';
+}
+
+async function saveItem() {
+  const title = $('f-title')?.value?.trim();
+  if (!title) { toast('请填写名称','err'); return; }
+  const stBtn = document.querySelector('#sp-opts button[style*="var(--ac)"]');
+  const status = stBtn?.dataset.val || 'unwatched';
+  const tagsVal = $('f-tags')?.value||'';
+  const tags = tagsVal.split(/[,，]/).map(t=>t.trim()).filter(Boolean);
+
+  const body = {
+    category:  pubCatKey(curPage),
+    title,
+    author:    $('f-author')?.value?.trim()||'',
+    year:      $('f-year')?.value?.trim()||'',
+    desc:      $('f-desc')?.value?.trim()||'',
+    notes:     $('f-notes')?.value?.trim()||'',
+    cover:     _cover,
+    rating:    _rating,
+    tags, status,
+  };
+
+  const btn = $('save-btn'); if (btn) { btn.disabled=true; btn.textContent='保存中…'; }
+  const isPriv = isPrivPage(curPage);
+  const endpoint = isPriv ? '/private' : '/collection';
+  let r;
+
+  try {
+    if (_editId) {
+      r = await apiFetch(`${endpoint}/${_editId}`, { method:'PUT', body });
+    } else {
+      r = await apiFetch(endpoint, { method:'POST', body });
+    }
+  } catch(e) {
+    toast(`请求失败：${e.message}`,'err');
+    if (btn) { btn.disabled=false; btn.textContent='💾 保存'; }
+    return;
+  }
+
+  if (r.ok) {
+    closeM('add-m');
+    // Update local cache
+    if (isPriv) {
+      if (_editId) { const i=privItems.findIndex(x=>x.id===_editId); if(i>=0)privItems[i]=r.data.item; }
+      else privItems.unshift(r.data.item);
+      updatePrivCounts();
+    } else {
+      if (_editId) { const i=pubItems.findIndex(x=>x.id===_editId); if(i>=0)pubItems[i]=r.data.item; }
+      else pubItems.unshift(r.data.item);
+      updateCounts();
+    }
+    renderContent();
+    toast(_editId?'已更新':'已添加','ok');
+  } else {
+    toast(r.data?.error||'保存失败','err');
+    if (btn) { btn.disabled=false; btn.textContent='💾 保存'; }
+  }
+}
+
+async function deleteItem(itemId) {
+  if (!confirm('确认删除此条目？')) return;
+  const isPriv   = isPrivPage(curPage);
+  const endpoint = isPriv ? `/private/${itemId}` : `/collection/${itemId}`;
+  const r = await apiFetch(endpoint, { method:'DELETE' });
+  if (r.ok) {
+    if (isPriv) { privItems=privItems.filter(i=>i.id!==itemId); updatePrivCounts(); }
+    else        { pubItems=pubItems.filter(i=>i.id!==itemId); updateCounts(); }
+    closeM('det'); renderContent(); toast('已删除','ok');
+  } else {
+    toast(r.data?.error||'删除失败','err');
+  }
+}
+
+// ── STATS PAGE ───────────────────────────────────────────────────
+function renderStats() {
+  const all = [...pubItems, ...privItems];
+  const total   = all.length;
+  const watched = all.filter(i=>i.status==='watched').length;
+  const rated   = all.filter(i=>i.rating);
+  const avgR    = rated.length ? (rated.reduce((s,i)=>s+i.rating,0)/rated.length).toFixed(1) : '-';
+  const catCards = Object.entries(CATS).map(([k,v])=>{
+    const cnt = pubItems.filter(i=>i.category===k).length + (isLoggedIn()?privItems.filter(i=>i.category===k).length:0);
+    return `<div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px">
+      <div style="font-size:22px;font-weight:700;font-family:var(--fm);color:var(--ac)">${cnt}</div>
+      <div style="font-size:11px;color:var(--tx3);margin-top:2px">${v.icon} ${v.label}</div>
+    </div>`;
+  }).join('');
+  return `<div>
+    <div style="font-family:var(--fs);font-size:19px;font-weight:600;margin-bottom:13px">📊 统计概览</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-bottom:16px">
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px"><div style="font-size:22px;font-weight:700;font-family:var(--fm);color:var(--ac)">${total}</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">总收藏</div></div>
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px"><div style="font-size:22px;font-weight:700;font-family:var(--fm);color:var(--green)">${watched}</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">✅ 已看</div></div>
+      <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px"><div style="font-size:22px;font-weight:700;font-family:var(--fm);color:var(--amber)">${avgR}</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">⭐ 均分</div></div>
+      ${catCards}
+    </div>
+    ${isLoggedIn()?`<div style="font-size:12px;color:var(--tx3);background:var(--bg2);padding:10px 14px;border-radius:var(--rs)">公共 ${pubItems.length} 条 · 私人 ${privItems.length} 条（仅你可见）</div>`:''}
+  </div>`;
+}
+
+// ── SETTINGS PAGE ────────────────────────────────────────────────
+function renderSettings() {
+  const dark = document.documentElement.hasAttribute('data-dark');
+  return `<div style="max-width:580px">
+    <div style="font-family:var(--fs);font-size:19px;font-weight:600;margin-bottom:18px">⚙️ 设置</div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:11.5px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px">外观</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--bd)">
+        <div style="flex:1"><div style="font-size:13.5px;font-weight:500">深色模式</div></div>
+        <button onclick="toggleDark()" style="width:40px;height:22px;border-radius:11px;background:${dark?'var(--ac)':'var(--bg3)'};position:relative;border:none;cursor:pointer;transition:background .2s">
+          <span style="position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:${dark?'21':'3'}px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+        </button>
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:11.5px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px">账号</div>
+      ${isLoggedIn()?`
+        <div style="background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:15px 16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:${isAdmin()?'var(--amber)':'var(--ac)'};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px">${auth.user?.username?.[0]?.toUpperCase()||'?'}</div>
+            <div><div style="font-size:14px;font-weight:600">${eh(auth.user?.username)}</div>
+              <div style="font-size:12px;color:var(--tx3)">${isAdmin()?'管理员':'普通用户'} · 注册于 ${new Date(auth.user?.createdAt||Date.now()).toLocaleDateString('zh-CN')}</div></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm" onclick="openChangePasswordModal()">🔑 修改密码</button>
+            <button class="btn sm d" onclick="logout()">退出登录</button>
+          </div>
+        </div>
+      `:`<div style="text-align:center;padding:20px;background:var(--bg2);border-radius:var(--r)">
+        <div style="font-size:13px;color:var(--tx2);margin-bottom:12px">未登录 — 登录后可使用完整功能</div>
+        <button class="btn p" onclick="openLoginModal()">立即登录</button>
+      </div>`}
+    </div>
+  </div>`;
+}
+
+// ── ADMIN PAGE ───────────────────────────────────────────────────
+async function renderAdmin(container) {
+  if (!isAdmin()) { container.innerHTML='<div class="empty"><div class="empty-i">🚫</div><div class="empty-t">无权限</div></div>'; return; }
+  container.innerHTML='<div class="empty"><div class="empty-i">⏳</div><div class="empty-t">加载中…</div></div>';
+  const r = await apiFetch('/users');
+  if (!r.ok) { container.innerHTML=`<div class="empty"><div class="empty-t">加载失败：${r.data?.error||''}</div></div>`; return; }
+  const users = r.data.users || [];
+
+  const rows = users.map(u=>`
+    <tr>
+      <td><strong>${eh(u.username)}</strong></td>
+      <td><span class="sbadge ${u.role==='admin'?'admin-badge':'user-badge'}">${u.role==='admin'?'管理员':'用户'}</span></td>
+      <td style="font-size:11px;color:var(--tx3)">${new Date(u.createdAt).toLocaleDateString('zh-CN')}</td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn xs" onclick="openEditUserModal('${u.uid}','${ea(u.username)}','${u.role}')">✏️</button>
+          <button class="btn xs" onclick="resetUserPassword('${u.uid}','${ea(u.username)}')">🔑</button>
+          <button class="btn xs d" onclick="deleteUser('${u.uid}','${ea(u.username)}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  container.innerHTML = `<div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div style="font-family:var(--fs);font-size:19px;font-weight:600">🛡️ 用户管理</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn p sm" onclick="openCreateUserModal()">＋ 创建用户</button>
+        <button class="btn sm" onclick="openGenPasswordModal()">🎲 生成密码</button>
+      </div>
+    </div>
+    <div style="background:var(--ambd);border:1px solid var(--amber);border-radius:var(--rs);padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:#92400e">
+      ⚠️ 此页面仅管理员可见。用户密码以 bcrypt 加密存储，管理员也无法查看原始密码。
+    </div>
+    <div style="overflow-x:auto"><table class="admin-table">
+      <thead><tr><th>用户名</th><th>角色</th><th>注册时间</th><th>操作</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:20px">暂无用户</td></tr>'}</tbody>
+    </table></div>
+  </div>`;
+}
+
+// Admin actions
+function openCreateUserModal() {
+  setM(`<div class="moverlay" id="cu-m" onclick="if(event.target===this)closeM('cu-m')">
+    <div class="modal" style="max-width:380px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">＋ 创建用户</div><button class="mclose" onclick="closeM('cu-m')">×</button></div>
+      <div class="mbody">
+        <div class="fg"><div class="fl">用户名</div><input class="fi" id="cu-uname" placeholder="2~32位字母数字中文"></div>
+        <div class="fg"><div class="fl">密码<span class="fl-note">留空则自动生成</span></div>
+          <div style="display:flex;gap:7px"><input class="fi" id="cu-pass" placeholder="留空自动生成" style="margin:0">
+          <button class="btn sm" onclick="genAndFill()">🎲</button></div>
+        </div>
+        <div class="fg"><div class="fl">角色</div>
+          <select class="fi" id="cu-role"><option value="user">普通用户</option><option value="admin">管理员</option></select>
+        </div>
+        <div id="cu-result" style="display:none;background:var(--greend);border-radius:var(--rs);padding:10px 12px;font-size:12.5px;margin-top:8px"></div>
+      </div>
+      <div class="mfoot"><button class="btn" onclick="closeM('cu-m')">取消</button><button class="btn p" onclick="createUser()">创建</button></div>
+    </div>
+  </div>`);
+}
+
+async function genAndFill() {
+  const r = await apiFetch('/users/gen-password', { method:'POST', body:{length:12} });
+  if (r.ok) { const el=$('cu-pass'); if(el)el.value=r.data.password; }
+}
+
+async function createUser() {
+  const username = $('cu-uname')?.value?.trim();
+  const password = $('cu-pass')?.value?.trim();
+  const role     = $('cu-role')?.value||'user';
+  if (!username) { toast('请输入用户名','err'); return; }
+  const r = await apiFetch('/users', { method:'POST', body:{username,password,role} });
+  if (r.ok) {
+    const result=$('cu-result');
+    if(result){
+      result.style.display='block';
+      result.innerHTML=`✅ 用户创建成功！<br>用户名：<strong>${eh(r.data.user.username)}</strong><br>初始密码：<strong style="font-family:var(--fm)">${eh(r.data.plainPassword)}</strong><br><span style="font-size:11px;color:var(--tx3)">请复制密码告知用户，此后无法再次查看</span>`;
+    }
+    toast('用户已创建','ok');
+    // Refresh admin table
+    setTimeout(()=>{ closeM('cu-m'); navigateTo('admin'); },4000);
+  } else {
+    toast(r.data?.error||'创建失败','err');
+  }
+}
+
+function openEditUserModal(uid, username, role) {
+  setM(`<div class="moverlay" id="eu-m" onclick="if(event.target===this)closeM('eu-m')">
+    <div class="modal" style="max-width:340px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">✏️ 编辑用户</div><button class="mclose" onclick="closeM('eu-m')">×</button></div>
+      <div class="mbody">
+        <div class="fg"><div class="fl">用户名</div><input class="fi" id="eu-uname" value="${ea(username)}"></div>
+        <div class="fg"><div class="fl">角色</div>
+          <select class="fi" id="eu-role">
+            <option value="user"${role==='user'?' selected':''}>普通用户</option>
+            <option value="admin"${role==='admin'?' selected':''}>管理员</option>
+          </select>
+        </div>
+      </div>
+      <div class="mfoot">
+        <button class="btn" onclick="closeM('eu-m')">取消</button>
+        <button class="btn p" onclick="editUser('${uid}')">保存</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+async function editUser(uid) {
+  const username = $('eu-uname')?.value?.trim();
+  const role     = $('eu-role')?.value;
+  const r = await apiFetch(`/users/${uid}`, { method:'PUT', body:{username,role} });
+  if (r.ok) { toast('已保存','ok'); closeM('eu-m'); navigateTo('admin'); }
+  else toast(r.data?.error||'保存失败','err');
+}
+
+async function resetUserPassword(uid, username) {
+  if (!confirm(`重置用户 ${username} 的密码？将生成新的随机密码。`)) return;
+  const r = await apiFetch(`/users/${uid}`, { method:'PUT', body:{resetPassword:true} });
+  if (r.ok) {
+    setM(`<div class="moverlay" id="rp-m" onclick="if(event.target===this)closeM('rp-m')">
+      <div class="modal" style="max-width:320px" onclick="event.stopPropagation()">
+        <div class="mhd"><div class="mtt">🔑 密码已重置</div><button class="mclose" onclick="closeM('rp-m')">×</button></div>
+        <div class="mbody">
+          <p style="font-size:13px;color:var(--tx2);margin-bottom:10px">用户 <strong>${eh(username)}</strong> 的新密码：</p>
+          <div style="background:var(--bg2);border-radius:var(--rs);padding:12px;font-family:var(--fm);font-size:15px;letter-spacing:.05em;text-align:center;color:var(--ac)">${eh(r.data.plainPassword)}</div>
+          <p style="font-size:11px;color:var(--tx3);margin-top:8px">请复制并告知用户，此后无法再次查看</p>
+        </div>
+        <div class="mfoot"><button class="btn p" onclick="closeM('rp-m')">关闭</button></div>
+      </div>
+    </div>`);
+  } else toast(r.data?.error||'重置失败','err');
+}
+
+async function deleteUser(uid, username) {
+  if (!confirm(`确认删除用户 ${username}？其私人收藏数据将保留在 GitHub 仓库中。`)) return;
+  const r = await apiFetch(`/users/${uid}`, { method:'DELETE' });
+  if (r.ok) { toast('用户已删除','ok'); navigateTo('admin'); }
+  else toast(r.data?.error||'删除失败','err');
+}
+
+function openGenPasswordModal() {
+  setM(`<div class="moverlay" id="gp-m" onclick="if(event.target===this)closeM('gp-m')">
+    <div class="modal" style="max-width:320px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">🎲 生成安全密码</div><button class="mclose" onclick="closeM('gp-m')">×</button></div>
+      <div class="mbody">
+        <div class="fg"><div class="fl">长度</div><input class="fi" id="gp-len" type="number" value="12" min="8" max="32"></div>
+        <div id="gp-result" style="display:none;background:var(--bg2);border-radius:var(--rs);padding:12px;font-family:var(--fm);font-size:15px;letter-spacing:.05em;text-align:center;color:var(--ac);margin-top:8px;cursor:pointer" onclick="navigator.clipboard?.writeText(this.textContent).then(()=>toast('已复制','ok'))"></div>
+        <p id="gp-hint" style="display:none;font-size:11px;color:var(--tx3);margin-top:5px">点击密码可复制</p>
+      </div>
+      <div class="mfoot">
+        <button class="btn p" onclick="doGenPassword()">生成</button>
+        <button class="btn" onclick="closeM('gp-m')">关闭</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+async function doGenPassword() {
+  const len = parseInt($('gp-len')?.value||'12');
+  const r = await apiFetch('/users/gen-password', { method:'POST', body:{length:len} });
+  if (r.ok) {
+    const el=$('gp-result'); if(el){el.style.display='block';el.textContent=r.data.password;}
+    const h=$('gp-hint'); if(h)h.style.display='block';
+  }
+}
+
+// ── LOGIN / REGISTER MODAL ────────────────────────────────────────
+function openLoginModal() {
+  if (isLoggedIn()) { openAccountModal(); return; }
+  setM(`<div class="moverlay" id="login-m" onclick="if(event.target===this)closeM('login-m')">
+    <div class="modal" style="max-width:380px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">登录 · 藏·索引</div><button class="mclose" onclick="closeM('login-m')">×</button></div>
+      <div class="mbody">
+        <div class="tab-bar">
+          <div class="tab on" id="tab-login" onclick="switchAuthTab('login')">登录</div>
+          <div class="tab" id="tab-register" onclick="switchAuthTab('register')">注册</div>
+          <div class="tab" id="tab-admin" onclick="switchAuthTab('admin')">管理员 Token</div>
+        </div>
+        <!-- Login -->
+        <div id="auth-login">
+          <div class="fg"><div class="fl">用户名</div><input class="fi" id="l-uname" placeholder="你的用户名" autocomplete="username"></div>
+          <div class="fg"><div class="fl">密码</div><input class="fi" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter')doLogin()"></div>
+        </div>
+        <!-- Register -->
+        <div id="auth-register" style="display:none">
+          <div class="fg"><div class="fl">用户名</div><input class="fi" id="r-uname" placeholder="2~32位，支持中文" autocomplete="username"></div>
+          <div class="fg"><div class="fl">密码</div><input class="fi" id="r-pass" type="password" placeholder="至少 6 位" autocomplete="new-password"></div>
+          <div class="fg"><div class="fl">邀请码<span class="fl-note">管理员提供，首次注册无需</span></div>
+            <input class="fi" id="r-code" placeholder="可选"></div>
+        </div>
+        <!-- Admin Token -->
+        <div id="auth-admin" style="display:none">
+          <div style="background:var(--ambd);border-radius:var(--rs);padding:10px 12px;font-size:12.5px;color:#92400e;margin-bottom:12px">
+            ⚡ 管理员 Token 存储在 Vercel 环境变量中，不会暴露给普通用户。
+          </div>
+          <div class="fg"><div class="fl">Admin Token</div>
+            <input class="fi" id="a-tok" type="password" placeholder="管理员专属 Token"
+              onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+        </div>
+        <div id="auth-err" style="display:none;color:var(--red);font-size:12.5px;margin-top:8px"></div>
+      </div>
+      <div class="mfoot">
+        <button class="btn" onclick="closeM('login-m')">取消</button>
+        <button class="btn p" id="auth-submit-btn" onclick="doAuthSubmit()">登录</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+let _authTab = 'login';
+function switchAuthTab(tab) {
+  _authTab = tab;
+  ['login','register','admin'].forEach(t => {
+    $('auth-'+t).style.display = t===tab ? 'block' : 'none';
+    $('tab-'+t).classList.toggle('on', t===tab);
+  });
+  $('auth-submit-btn').textContent = tab==='register'?'注册':tab==='admin'?'管理员登录':'登录';
+}
+
+function doAuthSubmit() {
+  if (_authTab==='register') doRegister();
+  else if (_authTab==='admin') doAdminLogin();
+  else doLogin();
+}
+
+async function doLogin() {
+  const username = $('l-uname')?.value?.trim();
+  const password = $('l-pass')?.value;
+  if (!username||!password) { showAuthErr('请填写用户名和密码'); return; }
+  await performLogin({ username, password });
+}
+
+async function doAdminLogin() {
+  const adminToken = $('a-tok')?.value?.trim();
+  if (!adminToken) { showAuthErr('请输入管理员 Token'); return; }
+  await performLogin({ adminToken });
+}
+
+async function doRegister() {
+  const username   = $('r-uname')?.value?.trim();
+  const password   = $('r-pass')?.value;
+  const inviteCode = $('r-code')?.value?.trim();
+  if (!username||!password) { showAuthErr('请填写用户名和密码'); return; }
+  const btn = $('auth-submit-btn'); if(btn){btn.disabled=true;btn.textContent='注册中…';}
+  const r = await apiFetch('/auth/register', { method:'POST', body:{username,password,inviteCode} });
+  if (r.ok) {
+    await handleAuthSuccess(r.data);
+  } else {
+    showAuthErr(r.data?.error||'注册失败');
+    if(btn){btn.disabled=false;btn.textContent='注册';}
+  }
+}
+
+async function performLogin(body) {
+  const btn = $('auth-submit-btn'); if(btn){btn.disabled=true;btn.textContent='登录中…';}
+  const r = await apiFetch('/auth/login', { method:'POST', body });
+  if (r.ok) {
+    await handleAuthSuccess(r.data);
+  } else {
+    showAuthErr(r.data?.error||'登录失败');
+    if(btn){btn.disabled=false;btn.textContent='登录';}
+  }
+}
+
+async function handleAuthSuccess(data) {
+  auth.token = data.token;
+  auth.user  = data.user || { uid:'__admin__', username:'admin', role:'admin' };
+  localStorage.setItem('cang_token', auth.token);
+  localStorage.setItem('cang_user',  JSON.stringify(auth.user));
+  closeM('login-m');
+  updateUserUI();
+  await loadPrivateItems();
+  renderContent();
+  renderBanner();
+  toast(`欢迎回来，${auth.user.username}！`, 'ok');
+}
+
+function showAuthErr(msg) {
+  const el = $('auth-err'); if (!el) return;
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function openAccountModal() {
+  if (!isLoggedIn()) { openLoginModal(); return; }
+  const u = auth.user;
+  setM(`<div class="moverlay" id="acc-m" onclick="if(event.target===this)closeM('acc-m')">
+    <div class="modal" style="max-width:340px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">账号信息</div><button class="mclose" onclick="closeM('acc-m')">×</button></div>
+      <div class="mbody">
+        <div style="text-align:center;padding:10px 0 16px">
+          <div style="width:56px;height:56px;border-radius:50%;background:${isAdmin()?'var(--amber)':'var(--ac)'};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;margin:0 auto 10px">${u.username?.[0]?.toUpperCase()||'?'}</div>
+          <div style="font-size:16px;font-weight:600">${eh(u.username)}</div>
+          <div style="font-size:12px;color:var(--tx3);margin-top:3px">${isAdmin()?'👑 管理员':'👤 普通用户'}</div>
+        </div>
+        <div style="background:var(--bg2);border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:var(--tx2)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--tx3)">注册时间</span>${new Date(u.createdAt||Date.now()).toLocaleDateString('zh-CN')}</div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--tx3)">公共收藏</span>${pubItems.length} 条</div>
+          ${isLoggedIn()?`<div style="display:flex;justify-content:space-between;margin-top:5px"><span style="color:var(--tx3)">私人收藏</span>${privItems.length} 条</div>`:''}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn p sm" onclick="closeM('acc-m');openChangePasswordModal()">🔑 修改密码</button>
+          ${isAdmin()?`<button class="btn sm" onclick="closeM('acc-m');navigateTo('admin')">🛡️ 用户管理</button>`:''}
+          <button class="btn sm d" onclick="closeM('acc-m');logout()">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </div>`);
+}
+
+function openChangePasswordModal() {
+  setM(`<div class="moverlay" id="cp-m" onclick="if(event.target===this)closeM('cp-m')">
+    <div class="modal" style="max-width:340px" onclick="event.stopPropagation()">
+      <div class="mhd"><div class="mtt">🔑 修改密码</div><button class="mclose" onclick="closeM('cp-m')">×</button></div>
+      <div class="mbody">
+        <div class="fg"><div class="fl">当前密码</div><input class="fi" id="cp-old" type="password" placeholder="当前密码"></div>
+        <div class="fg"><div class="fl">新密码</div><input class="fi" id="cp-new" type="password" placeholder="至少 6 位"></div>
+        <div class="fg"><div class="fl">确认新密码</div><input class="fi" id="cp-new2" type="password" placeholder="再次输入新密码"></div>
+        <div id="cp-err" style="display:none;color:var(--red);font-size:12.5px;margin-top:5px"></div>
+      </div>
+      <div class="mfoot">
+        <button class="btn" onclick="closeM('cp-m')">取消</button>
+        <button class="btn p" onclick="doChangePassword()">修改</button>
+      </div>
+    </div>
+  </div>`);
+}
+
+async function doChangePassword() {
+  const oldP = $('cp-old')?.value;
+  const newP = $('cp-new')?.value;
+  const newP2= $('cp-new2')?.value;
+  const errEl= $('cp-err');
+  if (!oldP||!newP||!newP2){if(errEl){errEl.textContent='请填写所有字段';errEl.style.display='block';}return;}
+  if (newP!==newP2){if(errEl){errEl.textContent='两次密码不一致';errEl.style.display='block';}return;}
+  if (newP.length<6){if(errEl){errEl.textContent='新密码至少 6 位';errEl.style.display='block';}return;}
+  const r = await apiFetch('/auth/password', { method:'POST', body:{oldPassword:oldP,newPassword:newP} });
+  if (r.ok) { closeM('cp-m'); toast('密码已修改','ok'); }
+  else { if(errEl){errEl.textContent=r.data?.error||'修改失败';errEl.style.display='block';} }
+}
+
+function logout(redirect=true) {
+  auth.token=''; auth.user=null;
+  localStorage.removeItem('cang_token'); localStorage.removeItem('cang_user');
+  privItems=[];
+  updateUserUI(); updatePrivCounts(); renderBanner();
+  if (redirect) { navigateTo('books'); toast('已退出登录','info'); }
+}
+
+// ── DARK MODE ────────────────────────────────────────────────────
+function toggleDark() {
+  const on = !document.documentElement.hasAttribute('data-dark');
+  if (on) document.documentElement.setAttribute('data-dark','');
+  else    document.documentElement.removeAttribute('data-dark');
+  $('dark-btn').textContent = on ? '☀️' : '🌙';
+  localStorage.setItem('cang_dark', on?'1':'0');
+}
+
+// ── SIDEBAR ──────────────────────────────────────────────────────
+function toggleSidebar(){
+  const sb=$('sidebar'),tog=$('mob-toggle');
+  sb.classList.toggle('open'); $('sb-ovl').classList.toggle('show');
+  if(tog)tog.classList.toggle('sb-open',sb.classList.contains('open'));
+}
+function closeSidebar(){
+  $('sidebar').classList.remove('open'); $('sb-ovl').classList.remove('show');
+  const tog=$('mob-toggle');if(tog)tog.classList.remove('sb-open');
+}
+
+// ── MODAL UTILS ──────────────────────────────────────────────────
+function setM(html){ $('M').innerHTML=html; }
+function closeM(id){ const el=$(id);if(el)el.remove(); }
+
+// ── TOASTS ───────────────────────────────────────────────────────
+function toast(msg, type='ok') {
+  const c=$('toasts');
+  const icons={ok:'✅',err:'❌',info:'ℹ️'};
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${eh(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},3500);
+}
+
+// ── START ────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
